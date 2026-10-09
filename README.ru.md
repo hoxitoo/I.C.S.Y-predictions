@@ -11,6 +11,9 @@
 
 [English](README.md) · **Русский**
 
+### [Открыть сайт →](https://hoxitoo.github.io/I.C.S.Y-predictions/ru/)
+Предстоящие матчи, результаты и живой трек-рекорд на русском и английском.
+
 </div>
 
 > [!IMPORTANT]
@@ -49,7 +52,7 @@ flowchart LR
     E --> F
 ```
 
-[Workflow публикации](.github/workflows/publish.yml) работает по расписанию:
+[Workflow публикации](.github/workflows/publish.yml) работает по расписанию, а [workflow сайта](.github/workflows/site.yml) после каждого запуска пересобирает сайт:
 
 1. собирает свежие данные;
 2. записывает результаты сыгранных матчей;

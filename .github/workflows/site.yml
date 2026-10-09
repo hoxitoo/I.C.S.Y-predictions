@@ -1,0 +1,77 @@
+# Builds the public site (RU/EN) from the journal and deploys it to GitHub Pages.
+#
+# Runs after every successful Publish run, so the site always shows the committed
+# journal. A failure here never affects the journal itself.
+
+name: Site
+
+on:
+  workflow_run:
+    workflows: [Publish]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out the journal
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: journal
+
+      - name: Check out the site generator
+        uses: actions/checkout@v4
+        with:
+          repository: hoxitoo/I.C.S.Y-I-Can-See-You-
+          ref: ${{ vars.ICSY_CODE_REF || 'claude/t-lite-publishing' }}
+          token: ${{ secrets.ICSY_CODE_TOKEN }}
+          path: code
+          persist-credentials: false
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.11"
+          enable-cache: true
+          cache-dependency-glob: code/uv.lock
+
+      - name: Build the site
+        working-directory: code
+        run: |
+          uv sync --frozen --no-dev
+          uv run --no-sync python -m icsy site build \
+            --journal "$GITHUB_WORKSPACE/journal" \
+            --out "$GITHUB_WORKSPACE/_site" \
+            --repo-url "https://github.com/${{ github.repository }}"
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -11,6 +11,9 @@
 
 **English** · [Русский](README.ru.md)
 
+### [Open the website →](https://hoxitoo.github.io/I.C.S.Y-predictions/)
+Upcoming matches, results and the live track record, in English and Russian.
+
 </div>
 
 > [!IMPORTANT]
@@ -49,7 +52,7 @@ flowchart LR
     E --> F
 ```
 
-The [publish workflow](.github/workflows/publish.yml) runs on a schedule:
+The [publish workflow](.github/workflows/publish.yml) runs on a schedule, and the [site workflow](.github/workflows/site.yml) rebuilds the website after every run:
 
 1. collect fresh data;
 2. record the results of finished matches;
