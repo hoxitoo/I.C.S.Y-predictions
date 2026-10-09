@@ -28,7 +28,7 @@ Anyone can check the accuracy and calibration from the files alone: no account, 
 
 ## What is published now
 
-| | |
+| Item | Details |
 |---|---|
 | **Forecast** | Probability that each team wins the series (`series_winner`) |
 | **Matches** | Upcoming matches listed on Liquipedia where at least one team is in the top 70 of any Valve Regional Standings ranking (global, Europe, Americas, Asia). Both teams need at least 5 series in the last 180 days |
