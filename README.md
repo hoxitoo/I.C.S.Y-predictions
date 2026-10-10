@@ -37,7 +37,7 @@ Anyone can check the accuracy and calibration from the files alone: no account, 
 | **Matches** | Upcoming matches listed on Liquipedia where at least one team is in the top 70 of any Valve Regional Standings ranking (global, Europe, Americas, Asia). Both teams need at least 5 series in the last 180 days |
 | **Not forecast** | Bo2 series (they can end 1:1), matches with an unknown opponent, teams without ranked history |
 | **Model** | `team_blend_roster` 0.1.0, details [below](#current-model) |
-| **Schedule** | Twice a day, 05:17 and 17:17 UTC. A match is usually forecast days ahead, as soon as both teams are known |
+| **Schedule** | Every hour at :17 UTC (GitHub may start scheduled runs late). A match is usually forecast days ahead, as soon as both teams are known |
 | **Coming next** | Map and player forecasts (kills, deaths, ADR with intervals), weekly calibration reports, Telegram channels in English and Russian |
 
 ## How it works

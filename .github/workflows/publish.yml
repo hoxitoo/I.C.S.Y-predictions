@@ -10,9 +10,11 @@
 name: Publish
 
 on:
+  # Hourly: GitHub starts scheduled runs late or skips them under load (on 2026-10-09
+  # the 17:17 run started at 21:42, the next 05:17 run did not start at all). A run
+  # without new lines commits nothing.
   schedule:
-    - cron: "17 5 * * *"
-    - cron: "17 17 * * *"
+    - cron: "17 * * * *"
   workflow_dispatch:
   push:
     branches: [main]
