@@ -4,6 +4,9 @@
 #
 # Needs the repository secret FACEIT_API_KEY (a FACEIT Data API server-side key). Without
 # it the run ends early without failing.
+#
+# Every account is checked against the FACEIT ID on the player's Liquipedia page; those
+# pages are cached here and re-read at most once a week (a few API requests).
 
 name: FACEIT
 
@@ -74,6 +77,7 @@ jobs:
         with:
           path: |
             data/raw/faceit
+            data/raw/liquipedia/players
             data/silver/faceit
           key: faceit-${{ github.run_id }}
           restore-keys: faceit-
@@ -95,6 +99,7 @@ jobs:
         with:
           path: |
             data/raw/faceit
+            data/raw/liquipedia/players
             data/silver/faceit
           key: faceit-${{ github.run_id }}
 
