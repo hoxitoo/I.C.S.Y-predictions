@@ -37,7 +37,7 @@ Anyone can check the accuracy and calibration from the files alone: no account, 
 | **Matches** | Upcoming matches listed on Liquipedia where at least one team is in the top 70 of any Valve Regional Standings ranking (global, Europe, Americas, Asia). Both teams need at least 5 series in the last 180 days |
 | **Not forecast** | Bo2 series (they can end 1:1), matches with an unknown opponent, teams without ranked history |
 | **Model** | `team_blend_roster` 0.1.0, details [below](#current-model) |
-| **Schedule** | Every hour at :17 UTC (GitHub may start scheduled runs late). A match is usually forecast days ahead, as soon as both teams are known |
+| **Schedule** | Every hour at :17 UTC, started by an external scheduler (GitHub's own schedule starts runs hours late or skips them). A match is usually forecast days ahead, as soon as both teams are known |
 | **Coming next** | Map and player forecasts (kills, deaths, ADR with intervals), weekly calibration reports, Telegram channels in English and Russian |
 
 ## How it works
@@ -75,6 +75,9 @@ Every commit is made by a public workflow run with its own timestamped log on Gi
 2. **Before the match.** A forecast counts only if its `created_at` is earlier than the **actual** start of the match, taken from the result record. Scheduled times often move: a match planned for 11:00 may start at 11:25.
 3. **Re-forecasts** keep the same `match_id` and point to the previous line through `supersedes`. The track record uses the last forecast made before the start and is also reported for the first one, so re-forecasts cannot improve the record after the fact.
 4. **Corrections** of data errors are new lines with `correction_of` and `reason`. The original stays visible.
+   - A result counts only if its match started after the first forecast of that `match_id`. A line that breaks this is ignored and corrected by a later line (`reason: result_before_forecast`).
+   - If two `match_id`s turn out to be one real match, the later one gets `duplicate_of` and the match is scored once, with the forecasts of both.
+   - On 10.10.2026 schema 0.2 settled two forecasts of a grand final with the upper-bracket final of the same teams, which had ended before they were made. Both lines were ignored by the scoring rule and corrected by schema 0.3 lines.
 5. **Every line names its model version and parameters.** The track record is reported per version and overall.
 6. **Not scored:** forfeits and draws. They are still recorded in `results/`.
 
@@ -87,7 +90,7 @@ Every commit is made by a public workflow run with its own timestamped log on Gi
 {
   "prediction_id": "20261009T171700Z-1f0c3a9e5b7d2c41",
   "created_at": "2026-10-09T17:17:00+00:00",
-  "schema_version": "0.2",
+  "schema_version": "0.3",
   "model": {"name": "team_blend_roster", "version": "0.1.0",
             "params": {"roster_elo_k": 64.0, "vrs_scale": 0.42, "blend_roster_prev_lineup_weight_elo": 0.65}},
   "match": {
@@ -120,7 +123,7 @@ Every commit is made by a public workflow run with its own timestamped log on Gi
 
 ```json
 {
-  "schema_version": "0.2",
+  "schema_version": "0.3",
   "match_id": "1f0c3a9e5b7d2c41",
   "settled_at": "2026-10-10T17:17:00+00:00",
   "source": "liquipedia",
@@ -128,7 +131,10 @@ Every commit is made by a public workflow run with its own timestamped log on Gi
   "teams": {"team_a": "Team Vitality", "team_b": "Aurora Gaming"},
   "outcome": {"winner": "team_a", "score": "2:1", "forfeit": false},
   "source_fetched_at": "2026-10-10T17:16:41+00:00",
-  "attribution": ["Liquipedia (CC BY-SA 3.0), https://liquipedia.net/counterstrike/"]
+  "attribution": ["Liquipedia (CC BY-SA 3.0), https://liquipedia.net/counterstrike/"],
+  "correction_of": null,
+  "reason": null,
+  "duplicate_of": null
 }
 ```
 
@@ -143,6 +149,8 @@ Every commit is made by a public workflow run with its own timestamped log on Gi
 | `confidence.index` | Reliability index 0–100. **Version 0, not yet validated:** data volume 50%, line-up stability 30%, rating data available 20%; capped at 90 until it is checked against outcomes |
 | `scope_tier` | Coverage tier for separate calibration: `global_top30`, `global_31_70`, `regional` |
 | `outcome.winner` | `team_a`, `team_b` or `draw`, in the order given by `teams` |
+| `correction_of`, `reason` | In a result: `settled_at` of the line it replaces and why (`result_before_forecast`) |
+| `duplicate_of` | In a result: the `match_id` this journal match duplicates; the real match is scored once |
 
 ## Check it yourself
 
@@ -164,19 +172,35 @@ def load(folder):
             if line.strip():
                 yield json.loads(line)
 
-forecasts = {}
+forecasts, first = {}, {}
 for p in load("predictions"):
+    m, created = p["match"]["match_id"], datetime.fromisoformat(p["created_at"])
+    first[m] = min(first.get(m, created), created)
     if p["target"]["type"] == "series_winner":
-        forecasts.setdefault(p["match"]["match_id"], []).append(p)
+        forecasts.setdefault(m, []).append(p)
+
+# The result in force: the last line whose match started after the first forecast.
+current = {}
+for r in load("results"):
+    m = r["match_id"]
+    if m not in first or datetime.fromisoformat(r["start_time"]) > first[m]:
+        current[m] = r
+# A duplicate journal match is scored once, with the match it duplicates.
+for m, r in current.items():
+    if r.get("duplicate_of") in current:
+        forecasts.setdefault(r["duplicate_of"], []).extend(forecasts.get(m, []))
 
 scored = []
-for r in load("results"):
+for m, r in current.items():
     o = r["outcome"]
+    if r.get("duplicate_of") in current:
+        continue
     if o["forfeit"] or o["winner"] not in ("team_a", "team_b"):
         continue  # forfeits and draws are not scored
     start = datetime.fromisoformat(r["start_time"])
-    valid = [p for p in forecasts.get(r["match_id"], [])
-             if datetime.fromisoformat(p["created_at"]) < start]
+    valid = sorted((p for p in forecasts.get(m, [])
+                    if datetime.fromisoformat(p["created_at"]) < start),
+                   key=lambda p: p["created_at"])
     if valid:
         p = valid[-1]  # the last forecast made before the match started
         won = p["match"]["team_a"]["title"] == r["teams"][o["winner"]]

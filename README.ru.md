@@ -37,7 +37,7 @@ I.C.S.Y. (*I Can See You*) прогнозирует предстоящие ма�
 | **Матчи** | Предстоящие матчи с Liquipedia, где хотя бы одна команда входит в топ-70 любого рейтинга Valve Regional Standings (глобальный, Европа, Америка, Азия). У обеих команд должно быть не меньше 5 серий за последние 180 дней |
 | **Не прогнозируются** | Серии Bo2 (возможна ничья 1:1), матчи с неизвестным соперником, команды без рейтинговой истории |
 | **Модель** | `team_blend_roster` 0.1.0, подробнее [ниже](#текущая-модель) |
-| **Расписание** | Каждый час в :17 UTC (GitHub может запускать задачи по расписанию с опозданием). Обычно матч прогнозируется за несколько дней, как только известны обе команды |
+| **Расписание** | Каждый час в :17 UTC, запуск — внешним планировщиком (собственное расписание GitHub запускает задачи на часы позже или пропускает). Обычно матч прогнозируется за несколько дней, как только известны обе команды |
 | **Дальше** | Прогнозы на карты и по игрокам (убийства, смерти, ADR с интервалами), еженедельные отчёты о калибровке, Telegram-каналы на русском и английском |
 
 ## Как это работает
@@ -75,6 +75,9 @@ flowchart LR
 2. **До матча.** Прогноз засчитывается, только если его `created_at` раньше **фактического** начала матча, которое берётся из записи результата. Плановое время часто сдвигается: матч на 11:00 может начаться в 11:25.
 3. **Пересчёт** сохраняет тот же `match_id` и ссылается на прошлую строку через `supersedes`. В трек-рекорд идёт последний прогноз, сделанный до начала. Метрики считаются и по первому прогнозу, чтобы пересчёты не улучшали картину задним числом.
 4. **Исправление** ошибки данных — новая строка с `correction_of` и `reason`. Исходная строка остаётся видимой.
+   - Результат засчитывается, только если матч начался после первого прогноза этого `match_id`. Строка, нарушающая это, не учитывается и исправляется следующей строкой (`reason: result_before_forecast`).
+   - Если два `match_id` оказались одним реальным матчем, у второго ставится `duplicate_of`: матч оценивается один раз, по прогнозам обоих.
+   - 10.10.2026 формат 0.2 закрыл два прогноза на гранд-финал результатом верхнего финала тех же команд, который закончился раньше, чем были сделаны прогнозы. Правило оценки эти строки не учитывало; их исправили строки формата 0.3.
 5. **В каждой строке указаны версия модели и её параметры.** Трек-рекорд считается по версиям и в целом.
 6. **Не оцениваются:** технические поражения и ничьи. В `results/` они всё равно записываются.
 
@@ -87,7 +90,7 @@ flowchart LR
 {
   "prediction_id": "20261009T171700Z-1f0c3a9e5b7d2c41",
   "created_at": "2026-10-09T17:17:00+00:00",
-  "schema_version": "0.2",
+  "schema_version": "0.3",
   "model": {"name": "team_blend_roster", "version": "0.1.0",
             "params": {"roster_elo_k": 64.0, "vrs_scale": 0.42, "blend_roster_prev_lineup_weight_elo": 0.65}},
   "match": {
@@ -120,7 +123,7 @@ flowchart LR
 
 ```json
 {
-  "schema_version": "0.2",
+  "schema_version": "0.3",
   "match_id": "1f0c3a9e5b7d2c41",
   "settled_at": "2026-10-10T17:17:00+00:00",
   "source": "liquipedia",
@@ -128,7 +131,10 @@ flowchart LR
   "teams": {"team_a": "Team Vitality", "team_b": "Aurora Gaming"},
   "outcome": {"winner": "team_a", "score": "2:1", "forfeit": false},
   "source_fetched_at": "2026-10-10T17:16:41+00:00",
-  "attribution": ["Liquipedia (CC BY-SA 3.0), https://liquipedia.net/counterstrike/"]
+  "attribution": ["Liquipedia (CC BY-SA 3.0), https://liquipedia.net/counterstrike/"],
+  "correction_of": null,
+  "reason": null,
+  "duplicate_of": null
 }
 ```
 
@@ -143,6 +149,8 @@ flowchart LR
 | `confidence.index` | Индекс надёжности 0–100. **Версия 0, ещё не проверена:** объём данных 50%, стабильность состава 30%, наличие рейтинговых данных 20%. Ограничен 90, пока не проверен на исходах |
 | `scope_tier` | Уровень охвата для раздельной калибровки: `global_top30`, `global_31_70`, `regional` |
 | `outcome.winner` | `team_a`, `team_b` или `draw` — в порядке, заданном `teams` |
+| `correction_of`, `reason` | В результате: `settled_at` строки, которую она заменяет, и причина (`result_before_forecast`) |
+| `duplicate_of` | В результате: `match_id`, который дублирует эта запись; реальный матч оценивается один раз |
 
 ## Проверьте сами
 
@@ -164,19 +172,35 @@ def load(folder):
             if line.strip():
                 yield json.loads(line)
 
-forecasts = {}
+forecasts, first = {}, {}
 for p in load("predictions"):
+    m, created = p["match"]["match_id"], datetime.fromisoformat(p["created_at"])
+    first[m] = min(first.get(m, created), created)
     if p["target"]["type"] == "series_winner":
-        forecasts.setdefault(p["match"]["match_id"], []).append(p)
+        forecasts.setdefault(m, []).append(p)
+
+# Действующий результат: последняя строка, где матч начался после первого прогноза.
+current = {}
+for r in load("results"):
+    m = r["match_id"]
+    if m not in first or datetime.fromisoformat(r["start_time"]) > first[m]:
+        current[m] = r
+# Дубль матча в журнале оценивается один раз, вместе с матчем, который он дублирует.
+for m, r in current.items():
+    if r.get("duplicate_of") in current:
+        forecasts.setdefault(r["duplicate_of"], []).extend(forecasts.get(m, []))
 
 scored = []
-for r in load("results"):
+for m, r in current.items():
     o = r["outcome"]
+    if r.get("duplicate_of") in current:
+        continue
     if o["forfeit"] or o["winner"] not in ("team_a", "team_b"):
         continue  # технические поражения и ничьи не оцениваются
     start = datetime.fromisoformat(r["start_time"])
-    valid = [p for p in forecasts.get(r["match_id"], [])
-             if datetime.fromisoformat(p["created_at"]) < start]
+    valid = sorted((p for p in forecasts.get(m, [])
+                    if datetime.fromisoformat(p["created_at"]) < start),
+                   key=lambda p: p["created_at"])
     if valid:
         p = valid[-1]  # последний прогноз, сделанный до начала матча
         won = p["match"]["team_a"]["title"] == r["teams"][o["winner"]]
