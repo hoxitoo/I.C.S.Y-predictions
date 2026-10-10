@@ -1,0 +1,106 @@
+# Collects the FACEIT form of professional players (global VRS top-70 line-ups) for the
+# website. The form is context next to a forecast; it is not part of the journal and is
+# kept in the Actions cache, not committed.
+#
+# Needs the repository secret FACEIT_API_KEY (a FACEIT Data API server-side key). Without
+# it the run ends early without failing.
+
+name: FACEIT
+
+on:
+  schedule:
+    - cron: "47 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: faceit
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      ICSY_DATA_DIR: ${{ github.workspace }}/data
+      FACEIT_API_KEY: ${{ secrets.FACEIT_API_KEY }}
+    steps:
+      - name: Check the key
+        id: key
+        run: |
+          if [ -z "$FACEIT_API_KEY" ]; then
+            echo "The FACEIT_API_KEY secret is not set: nothing to collect." >> "$GITHUB_STEP_SUMMARY"
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check out the model code
+        if: steps.key.outputs.ok == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: hoxitoo/I.C.S.Y-I-Can-See-You-
+          ref: ${{ vars.ICSY_CODE_REF || 'claude/t-lite-publishing' }}
+          token: ${{ secrets.ICSY_CODE_TOKEN }}
+          path: code
+          persist-credentials: false
+
+      - name: Set up uv
+        if: steps.key.outputs.ok == 'true'
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.11"
+          enable-cache: true
+          cache-dependency-glob: code/uv.lock
+
+      - name: Month for the VRS cache key
+        if: steps.key.outputs.ok == 'true'
+        id: month
+        run: echo "value=$(date -u +%Y-%m)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore VRS clone
+        if: steps.key.outputs.ok == 'true'
+        uses: actions/cache/restore@v4
+        with:
+          path: data/raw/vrs
+          key: vrs-${{ steps.month.outputs.value }}
+          restore-keys: vrs-
+
+      - name: Restore FACEIT data
+        if: steps.key.outputs.ok == 'true'
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            data/raw/faceit
+            data/silver/faceit
+          key: faceit-${{ github.run_id }}
+          restore-keys: faceit-
+
+      - name: Collect
+        if: steps.key.outputs.ok == 'true'
+        working-directory: code
+        run: |
+          uv sync --frozen --no-dev
+          uv run --no-sync python -m icsy vrs sync
+          uv run --no-sync python -m icsy vrs build
+          uv run --no-sync python -m icsy faceit update --days 14 | tee faceit.log
+          { echo '```'; cat faceit.log; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Save FACEIT data
+        if: always() && steps.key.outputs.ok == 'true'
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            data/raw/faceit
+            data/silver/faceit
+          key: faceit-${{ github.run_id }}
+
+      - name: Save the form for the website
+        if: steps.key.outputs.ok == 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: data/gold/faceit/form.json
+          key: faceit-form-${{ github.run_id }}

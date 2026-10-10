@@ -1,13 +1,14 @@
 # Builds the public site (RU/EN) from the journal and deploys it to GitHub Pages.
 #
 # Runs after every successful Publish run, so the site always shows the committed
-# journal. A failure here never affects the journal itself.
+# journal, and after every FACEIT run to refresh the form shown next to forecasts. A
+# failure here never affects the journal itself.
 
 name: Site
 
 on:
   workflow_run:
-    workflows: [Publish]
+    workflows: [Publish, FACEIT]
     types: [completed]
   workflow_dispatch:
 
@@ -25,6 +26,8 @@ jobs:
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      ICSY_DATA_DIR: ${{ github.workspace }}/data
     steps:
       - name: Check out the journal
         uses: actions/checkout@v4
@@ -47,6 +50,13 @@ jobs:
           python-version: "3.11"
           enable-cache: true
           cache-dependency-glob: code/uv.lock
+
+      - name: Restore the latest FACEIT form
+        uses: actions/cache/restore@v4
+        with:
+          path: data/gold/faceit/form.json
+          key: faceit-form-latest-${{ github.run_id }}
+          restore-keys: faceit-form-
 
       - name: Build the site
         working-directory: code
