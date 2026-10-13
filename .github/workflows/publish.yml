@@ -83,13 +83,19 @@ jobs:
           key: liquipedia-${{ github.run_id }}
           restore-keys: liquipedia-
 
-      - name: Collect data
+      - name: Collect VRS
         working-directory: code
         run: |
           uv run --no-sync python -m icsy vrs sync
           uv run --no-sync python -m icsy vrs build
           uv run --no-sync python -m icsy scope build --top 70 > /dev/null
-          uv run --no-sync python -m icsy liquipedia fetch
+
+      # Liquipedia sometimes refuses requests from shared GitHub runner addresses (rate
+      # limit). The command then uses the stored page if it is at most 6 hours old and
+      # leaves a warning annotation with the HTTP status; older than that, the run fails.
+      - name: Collect Liquipedia
+        working-directory: code
+        run: uv run --no-sync python -m icsy liquipedia fetch
 
       - name: Save Liquipedia snapshots
         if: always()
