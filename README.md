@@ -73,7 +73,7 @@ Every commit is made by a public workflow run with its own timestamped log on Gi
 
 1. **Append-only.** Lines are never changed or removed. History is protected from force-pushes.
 2. **Before the match.** A forecast counts only if its `created_at` is earlier than the **actual** start of the match, taken from the result record. Scheduled times often move: a match planned for 11:00 may start at 11:25.
-3. **Re-forecasts** keep the same `match_id` and point to the previous line through `supersedes`; a new model version re-forecasts every open match once (`reason: new_model_version`). The track record uses the last forecast made before the start and is also reported for the first one, so re-forecasts cannot improve the record after the fact.
+3. **Re-forecasts** keep the same `match_id` and point to the previous line through `supersedes`; a new model version re-forecasts every open match once (`reason: new_model_version`), and so does a changed event line-up on Liquipedia before the match (`reason: lineup_change`, never back to an older line-up). The track record uses the last forecast made before the start and is also reported for the first one, so re-forecasts cannot improve the record after the fact.
 4. **Corrections** of data errors are new lines with `correction_of` and `reason`. The original stays visible.
    - A result counts only if its match started after the first forecast of that `match_id`. A line that breaks this is ignored and corrected by a later line (`reason: result_before_forecast`).
    - If two `match_id`s turn out to be one real match, the later one gets `duplicate_of` and the match is scored once, with the forecasts of both.
