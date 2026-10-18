@@ -73,7 +73,7 @@ Every commit is made by a public workflow run with its own timestamped log on Gi
 
 1. **Append-only.** Lines are never changed or removed. History is protected from force-pushes.
 2. **Before the match.** A forecast counts only if its `created_at` is earlier than the **actual** start of the match, taken from the result record. Scheduled times often move: a match planned for 11:00 may start at 11:25.
-3. **Re-forecasts** keep the same `match_id` and point to the previous line through `supersedes`. The track record uses the last forecast made before the start and is also reported for the first one, so re-forecasts cannot improve the record after the fact.
+3. **Re-forecasts** keep the same `match_id` and point to the previous line through `supersedes`; a new model version re-forecasts every open match once (`reason: new_model_version`). The track record uses the last forecast made before the start and is also reported for the first one, so re-forecasts cannot improve the record after the fact.
 4. **Corrections** of data errors are new lines with `correction_of` and `reason`. The original stays visible.
    - A result counts only if its match started after the first forecast of that `match_id`. A line that breaks this is ignored and corrected by a later line (`reason: result_before_forecast`).
    - If two `match_id`s turn out to be one real match, the later one gets `duplicate_of` and the match is scored once, with the forecasts of both.
@@ -148,6 +148,7 @@ Every commit is made by a public workflow run with its own timestamped log on Gi
 | `forecast.p_team_a` | Probability that `team_a` wins the series |
 | `confidence.index` | Reliability index 0–100. **Version 0, not yet validated:** data volume 50%, line-up stability 30%, rating data available 20%; capped at 90 until it is checked against outcomes |
 | `scope_tier` | Coverage tier for separate calibration: `global_top30`, `global_31_70`, `regional` |
+| `lineup_source` | In `model`: where the model takes the five players from. In each team: `liquipedia_event` (the event line-up) or `last_known` |
 | `outcome.winner` | `team_a`, `team_b` or `draw`, in the order given by `teams` |
 | `correction_of`, `reason` | In a result: `settled_at` of the line it replaces and why (`result_before_forecast`) |
 | `duplicate_of` | In a result: the `match_id` this journal match duplicates; the real match is scored once |
@@ -218,9 +219,9 @@ For reference, a coin flip scores a log loss of 0.6931 and a Brier score of 0.25
 
 ## Current model
 
-`team_blend_roster` 0.1.0 combines two signals:
+`team_blend_roster` 0.2.0 (since 18.10.2026; 0.1.0 before) combines two signals:
 
-- **Roster-aware Elo.** Ratings belong to players, not to team names. A team's strength is the average rating of its five players, a newcomer starts at the level of their new teammates, and a player keeps their rating after a transfer. Line-up changes are the norm: in 79% of series at least one team had changed players in the previous 30 days. The forecast uses each team's last known line-up, so a stand-in announced on match day is not seen.
+- **Roster-aware Elo.** Ratings belong to players, not to team names. A team's strength is the average rating of its five players, a newcomer starts at the level of their new teammates, and a player keeps their rating after a transfer. Line-up changes are the norm: in 79% of series at least one team had changed players in the previous 30 days. The five players are the ones the team lists for the event on Liquipedia where it is listed (new in 0.2.0), otherwise its last known line-up. A stand-in announced on match day may still be missed.
 - **Valve Regional Standings points,** calibrated: Valve's own formula is overconfident and loses to a coin flip on log loss until its logit is scaled down.
 
 Parameters were tuned on series up to 30.06.2025 and frozen; they change only with a new model version. Out-of-sample check on Valve's series history, 01.07.2025–30.06.2026 (8,426 series):
@@ -232,7 +233,9 @@ Parameters were tuned on series up to 30.06.2025 and frozen; they change only wi
 | Elo by team name | 0.6285 | 0.2194 | 0.022 | 64.2% |
 | **team_blend_roster 0.1.0** | **0.6090** | **0.2105** | **0.017** | **67.0%** |
 
-Matches between two top-30 teams are much harder: about **62%** of winners picked there. Expect numbers in that range for the most visible matches. The public track record in this repository is the real test.
+Matches between two top-30 teams are much harder: about **62%** of winners picked there. Expect numbers in that range for the most visible matches.
+
+That check assumed the line-up of each team's previous series is known. Live, line-ups come from Valve's data every few weeks, so they are often out of date: with the line-ups the model would really have known, log loss is **0.6154** for 0.1.0 and **0.6125** for 0.2.0 (15,808 series); where an event line-up is listed, **0.6130 → 0.6048**. The public track record in this repository is the real test.
 
 ## Sources and attribution
 
