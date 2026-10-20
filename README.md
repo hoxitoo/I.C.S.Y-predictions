@@ -6,7 +6,7 @@
 
 [![Publish](https://github.com/hoxitoo/I.C.S.Y-predictions/actions/workflows/publish.yml/badge.svg)](https://github.com/hoxitoo/I.C.S.Y-predictions/actions/workflows/publish.yml)
 [![License: CC BY-SA 4.0](https://img.shields.io/badge/license-CC%20BY--SA%204.0-lightgrey.svg)](LICENSE)
-![Model](https://img.shields.io/badge/model-team__blend__roster%200.1.0-blue)
+![Model](https://img.shields.io/badge/model-team__blend__roster%200.2.0-blue)
 ![Journal](https://img.shields.io/badge/journal-append--only-success)
 
 **English** · [Русский](README.ru.md)
@@ -36,30 +36,34 @@ Anyone can check the accuracy and calibration from the files alone: no account, 
 | Item | Details |
 |---|---|
 | **Forecast** | Probability that each team wins the series (`series_winner`) |
-| **Matches** | Upcoming matches listed on Liquipedia where at least one team is in the top 70 of any Valve Regional Standings ranking (global, Europe, Americas, Asia). Both teams need at least 5 series in the last 180 days |
+| **Matches** | Upcoming matches listed on Liquipedia where at least one team is in the top 70 of any Valve Regional Standings ranking (global, Europe, Americas, Asia). Both teams need at least 5 series in the last 180 days. When Liquipedia's match list lags behind, the teams and results are taken from the tournament pages |
 | **Not forecast** | Bo2 series (they can end 1:1), matches with an unknown opponent, teams without ranked history |
-| **Model** | `team_blend_roster` 0.1.0, details [below](#current-model) |
+| **Model** | `team_blend_roster` 0.2.0 since 18.10.2026 (0.1.0 before), details [below](#current-model) |
 | **Schedule** | Every hour at :17 UTC, started by an external scheduler (GitHub's own schedule starts runs hours late or skips them). A match is usually forecast days ahead, as soon as both teams are known |
-| **Coming next** | Map and player forecasts (kills, deaths, ADR with intervals), weekly calibration reports, Telegram channels in English and Russian |
+| **Telegram** | [t.me/ICSYpublic](https://t.me/ICSYpublic): new forecasts and results after every run, each linked to its journal line |
+| **Coming next** | Map and player forecasts (kills, deaths, ADR with intervals), weekly calibration reports |
 
 ## How it works
 
 ```mermaid
 flowchart LR
     A[Valve Regional Standings<br/>ratings and series history] --> C[Model<br/>team_blend_roster]
-    B[Liquipedia<br/>schedule and results] --> C
+    B[Liquipedia<br/>schedule, results,<br/>event line-ups] --> C
     C --> D[predictions/<br/>committed before the match]
     B --> E[results/<br/>after the match]
     D --> F[Track record:<br/>log loss, Brier, calibration]
     E --> F
+    D --> G[Website and<br/>Telegram channel]
+    E --> G
 ```
 
-The [publish workflow](.github/workflows/publish.yml) runs on a schedule, and the [site workflow](.github/workflows/site.yml) rebuilds the website after every run:
+The [publish workflow](.github/workflows/publish.yml) runs every hour, and the [site workflow](.github/workflows/site.yml) rebuilds the website after every run:
 
 1. collect fresh data;
 2. record the results of finished matches;
 3. forecast new upcoming matches;
-4. commit and push.
+4. commit and push;
+5. post new forecasts and results to the Telegram channel.
 
 Every commit is made by a public workflow run with its own timestamped log on GitHub. That, not the author's word, is the proof that a forecast existed before the match.
 
@@ -94,8 +98,9 @@ Every commit is made by a public workflow run with its own timestamped log on Gi
   "prediction_id": "20261009T171700Z-1f0c3a9e5b7d2c41",
   "created_at": "2026-10-09T17:17:00+00:00",
   "schema_version": "0.3",
-  "model": {"name": "team_blend_roster", "version": "0.1.0",
-            "params": {"roster_elo_k": 64.0, "vrs_scale": 0.42, "blend_roster_prev_lineup_weight_elo": 0.65}},
+  "model": {"name": "team_blend_roster", "version": "0.2.0",
+            "params": {"roster_elo_k": 64.0, "vrs_scale": 0.42, "blend_roster_prev_lineup_weight_elo": 0.65},
+            "lineup_source": "liquipedia_event"},
   "match": {
     "match_id": "1f0c3a9e5b7d2c41",
     "source": "liquipedia",
@@ -104,8 +109,10 @@ Every commit is made by a public workflow run with its own timestamped log on Gi
     "event_page": "ESL/Pro League/Season 24",
     "stage": "Playoffs",
     "format": "bo3",
-    "team_a": {"title": "Team Vitality", "name": "Vitality", "vrs_name": "vitality", "vrs_global_rank": 1, "lineup": ["..."]},
-    "team_b": {"title": "Aurora Gaming", "name": "Aurora", "vrs_name": "aurora", "vrs_global_rank": 9, "lineup": ["..."]}
+    "team_a": {"title": "Team Vitality", "name": "Vitality", "vrs_name": "vitality", "vrs_global_rank": 1,
+               "lineup": ["..."], "lineup_source": "liquipedia_event"},
+    "team_b": {"title": "Aurora Gaming", "name": "Aurora", "vrs_name": "aurora", "vrs_global_rank": 9,
+               "lineup": ["..."], "lineup_source": "last_known"}
   },
   "target": {"type": "series_winner", "map": null, "player": null},
   "forecast": {"p_team_a": 0.61},
@@ -153,7 +160,7 @@ Every commit is made by a public workflow run with its own timestamped log on Gi
 | `scope_tier` | Coverage tier for separate calibration: `global_top30`, `global_31_70`, `regional` |
 | `lineup_source` | In `model`: where the model takes the five players from. In each team: `liquipedia_event` (the event line-up) or `last_known` |
 | `outcome.winner` | `team_a`, `team_b` or `draw`, in the order given by `teams` |
-| `correction_of`, `reason` | In a result: `settled_at` of the line it replaces and why (`result_before_forecast`) |
+| `correction_of`, `reason` | In a result: `settled_at` of the line it replaces and why (`result_before_forecast`). In a forecast, `reason` says why a match was re-forecast: `new_model_version` or `lineup_change` |
 | `duplicate_of` | In a result: the `match_id` this journal match duplicates; the real match is scored once |
 
 ## Check it yourself
@@ -207,7 +214,7 @@ for m, r in current.items():
                    key=lambda p: p["created_at"])
     if valid:
         p = valid[-1]  # the last forecast made before the match started
-        won = p["match"]["team_a"]["title"] == r["teams"][o["winner"]]
+        won = p["match"]["team_a"]["title"].casefold() == r["teams"][o["winner"]].casefold()
         scored.append((p["forecast"]["p_team_a"], won))
 
 n = len(scored)
@@ -227,7 +234,7 @@ For reference, a coin flip scores a log loss of 0.6931 and a Brier score of 0.25
 - **Roster-aware Elo.** Ratings belong to players, not to team names. A team's strength is the average rating of its five players, a newcomer starts at the level of their new teammates, and a player keeps their rating after a transfer. Line-up changes are the norm: in 79% of series at least one team had changed players in the previous 30 days. The five players are the ones the team lists for the event on Liquipedia where it is listed (new in 0.2.0), otherwise its last known line-up. A stand-in announced on match day may still be missed.
 - **Valve Regional Standings points,** calibrated: Valve's own formula is overconfident and loses to a coin flip on log loss until its logit is scaled down.
 
-Parameters were tuned on series up to 30.06.2025 and frozen; they change only with a new model version. Out-of-sample check on Valve's series history, 01.07.2025–30.06.2026 (8,426 series):
+Parameters were tuned on series up to 30.06.2025 and frozen; they change only with a new model version (0.2.0 keeps those of 0.1.0). Out-of-sample check on Valve's series history, 01.07.2025–30.06.2026 (8,426 series):
 
 | Model | Log loss | Brier | Calibration error (ECE) | Winners picked |
 |---|---|---|---|---|
@@ -242,11 +249,13 @@ That check assumed the line-up of each team's previous series is known. Live, li
 
 ## Sources and attribution
 
-- **[Liquipedia](https://liquipedia.net/counterstrike/)** — schedule, teams and results, licensed under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Data is read through the public MediaWiki API within its rate limits.
+- **[Liquipedia](https://liquipedia.net/counterstrike/)** — schedule, teams, results and the line-ups teams list for events, licensed under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Data is read through the public MediaWiki API within its rate limits.
 - **[Valve Regional Standings](https://github.com/ValveSoftware/counter-strike_regional_standings)** — rankings, points and series history with line-ups. Event data in it is provided to Valve by HLTV.org.
+
+- **[FACEIT](https://www.faceit.com)** — players' recent FACEIT form, shown on the website as context only: it is not in the journal and not in the forecasts.
 
 Every record names its sources in `attribution`. Raw source data is not republished here.
 
 ## License
 
-The journal (everything in `predictions/`, `results/` and `reports/`) is licensed under [Creative Commons Attribution-ShareAlike 4.0](LICENSE). You may share and adapt it, including commercially, if you credit **I.C.S.Y. (github.com/hoxitoo/I.C.S.Y-predictions)** and the sources above and release adaptations under the same license.
+The journal (everything in `predictions/`, `results/`, `reports/` and `telegram/`) is licensed under [Creative Commons Attribution-ShareAlike 4.0](LICENSE). You may share and adapt it, including commercially, if you credit **I.C.S.Y. (github.com/hoxitoo/I.C.S.Y-predictions)** and the sources above and release adaptations under the same license.

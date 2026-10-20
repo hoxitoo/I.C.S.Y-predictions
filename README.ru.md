@@ -6,7 +6,7 @@
 
 [![Publish](https://github.com/hoxitoo/I.C.S.Y-predictions/actions/workflows/publish.yml/badge.svg)](https://github.com/hoxitoo/I.C.S.Y-predictions/actions/workflows/publish.yml)
 [![License: CC BY-SA 4.0](https://img.shields.io/badge/license-CC%20BY--SA%204.0-lightgrey.svg)](LICENSE)
-![Model](https://img.shields.io/badge/model-team__blend__roster%200.1.0-blue)
+![Model](https://img.shields.io/badge/model-team__blend__roster%200.2.0-blue)
 ![Journal](https://img.shields.io/badge/journal-append--only-success)
 
 [English](README.md) · **Русский**
@@ -36,30 +36,34 @@ I.C.S.Y. (*I Can See You*) прогнозирует предстоящие ма�
 | Что | Подробности |
 |---|---|
 | **Прогноз** | Вероятность победы каждой команды в серии (`series_winner`) |
-| **Матчи** | Предстоящие матчи с Liquipedia, где хотя бы одна команда входит в топ-70 любого рейтинга Valve Regional Standings (глобальный, Европа, Америка, Азия). У обеих команд должно быть не меньше 5 серий за последние 180 дней |
+| **Матчи** | Предстоящие матчи с Liquipedia, где хотя бы одна команда входит в топ-70 любого рейтинга Valve Regional Standings (глобальный, Европа, Америка, Азия). У обеих команд должно быть не меньше 5 серий за последние 180 дней. Если список матчей Liquipedia отстаёт, команды и результаты берутся со страниц турниров |
 | **Не прогнозируются** | Серии Bo2 (возможна ничья 1:1), матчи с неизвестным соперником, команды без рейтинговой истории |
-| **Модель** | `team_blend_roster` 0.1.0, подробнее [ниже](#текущая-модель) |
+| **Модель** | `team_blend_roster` 0.2.0 с 18.10.2026 (до этого 0.1.0), подробнее [ниже](#текущая-модель) |
 | **Расписание** | Каждый час в :17 UTC, запуск — внешним планировщиком (собственное расписание GitHub запускает задачи на часы позже или пропускает). Обычно матч прогнозируется за несколько дней, как только известны обе команды |
-| **Дальше** | Прогнозы на карты и по игрокам (убийства, смерти, ADR с интервалами), еженедельные отчёты о калибровке, Telegram-каналы на русском и английском |
+| **Telegram** | [t.me/ICSYpublic](https://t.me/ICSYpublic): новые прогнозы и итоги после каждого запуска, у каждого ссылка на строку журнала |
+| **Дальше** | Прогнозы на карты и по игрокам (убийства, смерти, ADR с интервалами), еженедельные отчёты о калибровке |
 
 ## Как это работает
 
 ```mermaid
 flowchart LR
     A[Valve Regional Standings<br/>рейтинги и история серий] --> C[Модель<br/>team_blend_roster]
-    B[Liquipedia<br/>расписание и результаты] --> C
+    B[Liquipedia<br/>расписание, результаты,<br/>заявки на турниры] --> C
     C --> D[predictions/<br/>коммит до матча]
     B --> E[results/<br/>после матча]
     D --> F[Трек-рекорд:<br/>log loss, Brier, калибровка]
     E --> F
+    D --> G[Сайт и<br/>Telegram-канал]
+    E --> G
 ```
 
-[Workflow публикации](.github/workflows/publish.yml) работает по расписанию, а [workflow сайта](.github/workflows/site.yml) после каждого запуска пересобирает сайт:
+[Workflow публикации](.github/workflows/publish.yml) запускается каждый час, а [workflow сайта](.github/workflows/site.yml) после каждого запуска пересобирает сайт:
 
 1. собирает свежие данные;
 2. записывает результаты сыгранных матчей;
 3. прогнозирует новые предстоящие матчи;
-4. делает коммит и пуш.
+4. делает коммит и пуш;
+5. публикует новые прогнозы и итоги в Telegram-канале.
 
 Каждый коммит делает публичный запуск workflow со своим логом и временем на GitHub. Доказательство того, что прогноз появился до матча, — это он, а не слова автора.
 
@@ -94,8 +98,9 @@ flowchart LR
   "prediction_id": "20261009T171700Z-1f0c3a9e5b7d2c41",
   "created_at": "2026-10-09T17:17:00+00:00",
   "schema_version": "0.3",
-  "model": {"name": "team_blend_roster", "version": "0.1.0",
-            "params": {"roster_elo_k": 64.0, "vrs_scale": 0.42, "blend_roster_prev_lineup_weight_elo": 0.65}},
+  "model": {"name": "team_blend_roster", "version": "0.2.0",
+            "params": {"roster_elo_k": 64.0, "vrs_scale": 0.42, "blend_roster_prev_lineup_weight_elo": 0.65},
+            "lineup_source": "liquipedia_event"},
   "match": {
     "match_id": "1f0c3a9e5b7d2c41",
     "source": "liquipedia",
@@ -104,8 +109,10 @@ flowchart LR
     "event_page": "ESL/Pro League/Season 24",
     "stage": "Playoffs",
     "format": "bo3",
-    "team_a": {"title": "Team Vitality", "name": "Vitality", "vrs_name": "vitality", "vrs_global_rank": 1, "lineup": ["..."]},
-    "team_b": {"title": "Aurora Gaming", "name": "Aurora", "vrs_name": "aurora", "vrs_global_rank": 9, "lineup": ["..."]}
+    "team_a": {"title": "Team Vitality", "name": "Vitality", "vrs_name": "vitality", "vrs_global_rank": 1,
+               "lineup": ["..."], "lineup_source": "liquipedia_event"},
+    "team_b": {"title": "Aurora Gaming", "name": "Aurora", "vrs_name": "aurora", "vrs_global_rank": 9,
+               "lineup": ["..."], "lineup_source": "last_known"}
   },
   "target": {"type": "series_winner", "map": null, "player": null},
   "forecast": {"p_team_a": 0.61},
@@ -153,7 +160,7 @@ flowchart LR
 | `scope_tier` | Уровень охвата для раздельной калибровки: `global_top30`, `global_31_70`, `regional` |
 | `lineup_source` | В `model`: откуда модель берёт пятёрку. У каждой команды: `liquipedia_event` (заявка на турнир) или `last_known` (последний известный состав) |
 | `outcome.winner` | `team_a`, `team_b` или `draw` — в порядке, заданном `teams` |
-| `correction_of`, `reason` | В результате: `settled_at` строки, которую она заменяет, и причина (`result_before_forecast`) |
+| `correction_of`, `reason` | В результате: `settled_at` строки, которую она заменяет, и причина (`result_before_forecast`). В прогнозе `reason` объясняет пересчёт: `new_model_version` или `lineup_change` |
 | `duplicate_of` | В результате: `match_id`, который дублирует эта запись; реальный матч оценивается один раз |
 
 ## Проверьте сами
@@ -207,7 +214,7 @@ for m, r in current.items():
                    key=lambda p: p["created_at"])
     if valid:
         p = valid[-1]  # последний прогноз, сделанный до начала матча
-        won = p["match"]["team_a"]["title"] == r["teams"][o["winner"]]
+        won = p["match"]["team_a"]["title"].casefold() == r["teams"][o["winner"]].casefold()
         scored.append((p["forecast"]["p_team_a"], won))
 
 n = len(scored)
@@ -227,7 +234,7 @@ if n:
 - **Elo с учётом составов.** Рейтинг принадлежит игрокам, а не названию команды. Сила команды — средний рейтинг её пяти игроков, новичок стартует на уровне новых тиммейтов, а игрок сохраняет рейтинг после перехода. Смены составов — норма: в 79% серий хотя бы одна команда меняла игроков за предыдущие 30 дней. Пятёрка берётся из заявки команды на турнир в Liquipedia, если она есть (новое в 0.2.0), иначе — последний известный состав. Стендина, объявленного в день матча, модель может не увидеть.
 - **Очки Valve Regional Standings** после калибровки. Формула Valve слишком самоуверенна: пока её логит не сжат, по log loss она проигрывает монетке.
 
-Параметры подобраны на сериях до 30.06.2025 и заморожены. Они меняются только вместе с новой версией модели. Проверка вне выборки на истории серий Valve, 01.07.2025–30.06.2026 (8 426 серий):
+Параметры подобраны на сериях до 30.06.2025 и заморожены. Они меняются только вместе с новой версией модели (0.2.0 сохранила параметры 0.1.0). Проверка вне выборки на истории серий Valve, 01.07.2025–30.06.2026 (8 426 серий):
 
 | Модель | Log loss | Brier | Ошибка калибровки (ECE) | Угадано победителей |
 |---|---|---|---|---|
@@ -242,11 +249,13 @@ if n:
 
 ## Источники и атрибуция
 
-- **[Liquipedia](https://liquipedia.net/counterstrike/)** — расписание, команды и результаты, лицензия [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Данные берутся через публичный MediaWiki API в пределах его лимитов.
+- **[Liquipedia](https://liquipedia.net/counterstrike/)** — расписание, команды, результаты и заявки команд на турниры, лицензия [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Данные берутся через публичный MediaWiki API в пределах его лимитов.
 - **[Valve Regional Standings](https://github.com/ValveSoftware/counter-strike_regional_standings)** — рейтинги, очки и история серий с составами. Данные о событиях в нём Valve получает от HLTV.org.
+
+- **[FACEIT](https://www.faceit.com)** — недавняя форма игроков на FACEIT, на сайте только как контекст: в журнал и в прогнозы она не входит.
 
 Каждая запись указывает свои источники в поле `attribution`. Сырые данные источников здесь не перепубликуются.
 
 ## Лицензия
 
-Журнал (всё в `predictions/`, `results/` и `reports/`) распространяется по лицензии [Creative Commons Attribution-ShareAlike 4.0](LICENSE). Его можно распространять и переделывать, в том числе в коммерческих целях, если указать **I.C.S.Y. (github.com/hoxitoo/I.C.S.Y-predictions)** и источники выше, а переработку выпускать под той же лицензией.
+Журнал (всё в `predictions/`, `results/`, `reports/` и `telegram/`) распространяется по лицензии [Creative Commons Attribution-ShareAlike 4.0](LICENSE). Его можно распространять и переделывать, в том числе в коммерческих целях, если указать **I.C.S.Y. (github.com/hoxitoo/I.C.S.Y-predictions)** и источники выше, а переработку выпускать под той же лицензией.
