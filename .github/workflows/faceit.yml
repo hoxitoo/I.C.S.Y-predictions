@@ -42,7 +42,7 @@ jobs:
 
       - name: Check out the model code
         if: steps.key.outputs.ok == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: hoxitoo/I.C.S.Y-I-Can-See-You-
           ref: ${{ vars.ICSY_CODE_REF || 'claude/t-lite-publishing' }}
@@ -52,7 +52,7 @@ jobs:
 
       - name: Set up uv
         if: steps.key.outputs.ok == 'true'
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v10.2.0
         with:
           python-version: "3.11"
           enable-cache: true
@@ -65,7 +65,7 @@ jobs:
 
       - name: Restore VRS clone
         if: steps.key.outputs.ok == 'true'
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: data/raw/vrs
           key: vrs-${{ steps.month.outputs.value }}
@@ -73,7 +73,7 @@ jobs:
 
       - name: Restore FACEIT data
         if: steps.key.outputs.ok == 'true'
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: |
             data/raw/faceit
@@ -95,7 +95,7 @@ jobs:
       - name: Save FACEIT data
         if: always() && steps.key.outputs.ok == 'true'
         continue-on-error: true
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: |
             data/raw/faceit
@@ -105,7 +105,7 @@ jobs:
 
       - name: Save the form for the website
         if: steps.key.outputs.ok == 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: data/gold/faceit/form.json
           key: faceit-form-${{ github.run_id }}

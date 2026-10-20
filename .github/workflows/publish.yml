@@ -37,12 +37,12 @@ jobs:
       JOURNAL: ${{ github.workspace }}/journal
     steps:
       - name: Check out the journal
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           path: journal
 
       - name: Check out the model code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: hoxitoo/I.C.S.Y-I-Can-See-You-
           ref: ${{ vars.ICSY_CODE_REF || 'claude/t-lite-publishing' }}
@@ -51,7 +51,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v10.2.0
         with:
           python-version: "3.11"
           enable-cache: true
@@ -67,7 +67,7 @@ jobs:
 
       # Valve's repository (~300 MB) changes about once a month.
       - name: Restore VRS clone
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: data/raw/vrs
           key: vrs-${{ steps.month.outputs.value }}
@@ -75,7 +75,7 @@ jobs:
 
       # Liquipedia snapshots accumulate: results are collected from all of them.
       - name: Restore Liquipedia snapshots
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: |
             data/raw/liquipedia
@@ -100,7 +100,7 @@ jobs:
       - name: Save Liquipedia snapshots
         if: always()
         continue-on-error: true
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: |
             data/raw/liquipedia
@@ -108,7 +108,7 @@ jobs:
           key: liquipedia-${{ github.run_id }}
 
       - name: Save VRS clone
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         continue-on-error: true  # the key already exists after the first run of a month
         with:
           path: data/raw/vrs

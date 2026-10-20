@@ -30,13 +30,13 @@ jobs:
       ICSY_DATA_DIR: ${{ github.workspace }}/data
     steps:
       - name: Check out the journal
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: main
           path: journal
 
       - name: Check out the site generator
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: hoxitoo/I.C.S.Y-I-Can-See-You-
           ref: ${{ vars.ICSY_CODE_REF || 'claude/t-lite-publishing' }}
@@ -45,14 +45,14 @@ jobs:
           persist-credentials: false
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v10.2.0
         with:
           python-version: "3.11"
           enable-cache: true
           cache-dependency-glob: code/uv.lock
 
       - name: Restore the latest FACEIT form
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: data/gold/faceit/form.json
           key: faceit-form-latest-${{ github.run_id }}
@@ -68,10 +68,10 @@ jobs:
             --repo-url "https://github.com/${{ github.repository }}"
 
       - name: Configure Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
       - name: Upload the site
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
@@ -84,4 +84,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
