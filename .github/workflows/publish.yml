@@ -147,3 +147,41 @@ jobs:
           git commit -q -m "Journal: ${added} new lines, $(date -u +%Y-%m-%dT%H:%MZ)" \
             -m "Model code: hoxitoo/I.C.S.Y-I-Can-See-You-@${code_sha}"
           git push
+
+      # Telegram channel: new forecasts and results, each linked to its journal line.
+      # Needs the secret TELEGRAM_BOT_TOKEN and the variable TELEGRAM_CHAT_ID (for example
+      # @ICSYpublic); TELEGRAM_LANG picks the language (ru by default). Without them the
+      # step is skipped. What was posted is recorded in telegram/posted.jsonl.
+      - name: Check the Telegram settings
+        id: telegram
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ vars.TELEGRAM_CHAT_ID }}
+        run: |
+          if [ -n "$TELEGRAM_BOT_TOKEN" ] && [ -n "$TELEGRAM_CHAT_ID" ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Post to Telegram
+        if: steps.telegram.outputs.ok == 'true'
+        continue-on-error: true  # a failed post is retried in the next run
+        working-directory: code
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ vars.TELEGRAM_CHAT_ID }}
+          TELEGRAM_LANG: ${{ vars.TELEGRAM_LANG || 'ru' }}
+        run: uv run --no-sync python -m icsy telegram post --journal "$JOURNAL"
+
+      - name: Commit the Telegram record
+        if: always() && steps.telegram.outputs.ok == 'true'
+        working-directory: journal
+        run: |
+          if [ ! -d telegram ]; then exit 0; fi
+          git add telegram
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -q -m "Telegram: posts recorded, $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push

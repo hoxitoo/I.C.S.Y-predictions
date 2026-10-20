@@ -14,6 +14,8 @@
 ### [Открыть сайт →](https://hoxitoo.github.io/I.C.S.Y-predictions/ru/)
 Предстоящие матчи, результаты и живой трек-рекорд на русском и английском.
 
+Telegram-канал: [t.me/ICSYpublic](https://t.me/ICSYpublic) — новые прогнозы и итоги, у каждого ссылка на его строку в этом журнале.
+
 </div>
 
 > [!IMPORTANT]
@@ -68,6 +70,7 @@ flowchart LR
 | [`predictions/YYYY-MM-DD.jsonl`](predictions/) | Прогнозы, созданные в этот день (UTC), один JSON-объект на строку |
 | [`results/YYYY-MM-DD.jsonl`](results/) | Исходы матчей, записанные в этот день |
 | `reports/` | Еженедельные отчёты о калибровке (скоро) |
+| `telegram/posted.jsonl` | Что и когда опубликовано в Telegram-канале (только дописывается) |
 
 ## Правила журнала
 

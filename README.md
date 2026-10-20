@@ -14,6 +14,8 @@
 ### [Open the website →](https://hoxitoo.github.io/I.C.S.Y-predictions/)
 Upcoming matches, results and the live track record, in English and Russian.
 
+Telegram channel: [t.me/ICSYpublic](https://t.me/ICSYpublic) — new forecasts and results, each linked to its line in this journal.
+
 </div>
 
 > [!IMPORTANT]
@@ -68,6 +70,7 @@ Every commit is made by a public workflow run with its own timestamped log on Gi
 | [`predictions/YYYY-MM-DD.jsonl`](predictions/) | Forecasts created that day (UTC), one JSON object per line |
 | [`results/YYYY-MM-DD.jsonl`](results/) | Match outcomes recorded that day |
 | `reports/` | Weekly calibration reports (coming) |
+| `telegram/posted.jsonl` | What was posted to the Telegram channel and when (append-only) |
 
 ## Journal rules
 
