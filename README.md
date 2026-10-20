@@ -234,7 +234,9 @@ For reference, a coin flip scores a log loss of 0.6931 and a Brier score of 0.25
 - **Roster-aware Elo.** Ratings belong to players, not to team names. A team's strength is the average rating of its five players, a newcomer starts at the level of their new teammates, and a player keeps their rating after a transfer. Line-up changes are the norm: in 79% of series at least one team had changed players in the previous 30 days. The five players are the ones the team lists for the event on Liquipedia where it is listed (new in 0.2.0), otherwise its last known line-up. A stand-in announced on match day may still be missed.
 - **Valve Regional Standings points,** calibrated: Valve's own formula is overconfident and loses to a coin flip on log loss until its logit is scaled down.
 
-Parameters were tuned on series up to 30.06.2025 and frozen; they change only with a new model version (0.2.0 keeps those of 0.1.0). Out-of-sample check on Valve's series history, 01.07.2025–30.06.2026 (8,426 series):
+Parameters were tuned on series up to 30.06.2025 and frozen; they change only with a new model version (0.2.0 keeps those of 0.1.0).
+
+**Backtest of 0.1.0** (method of the first research note): out-of-sample check on Valve's series history, 01.07.2025–30.06.2026, 8,426 series where both teams have VRS points, against simple baselines:
 
 | Model | Log loss | Brier | Calibration error (ECE) | Winners picked |
 |---|---|---|---|---|
@@ -245,7 +247,15 @@ Parameters were tuned on series up to 30.06.2025 and frozen; they change only wi
 
 Matches between two top-30 teams are much harder: about **62%** of winners picked there. Expect numbers in that range for the most visible matches.
 
-That check assumed the line-up of each team's previous series is known. Live, line-ups come from Valve's data every few weeks, so they are often out of date: with the line-ups the model would really have known, log loss is **0.6154** for 0.1.0 and **0.6125** for 0.2.0 (15,808 series); where an event line-up is listed, **0.6130 → 0.6048**. The public track record in this repository is the real test.
+**0.1.0 and 0.2.0 compared.** The backtest above gives the model the line-up of each team's previous series, which is almost always fresh. Live, line-ups come from Valve's data with each VRS snapshot, every few weeks, so they are often out of date. The two versions differ only in where the five players come from, so they are compared on the same 15,808 series of the same window (log loss, lower is better):
+
+| Line-up the model knows | 0.1.0 | 0.2.0 |
+|---|---|---|
+| From the team's previous series (as in the backtest above) | 0.6051 | 0.6048 |
+| As known live: at the latest VRS snapshot | 0.6154 | **0.6125** |
+| The same, for the 5,670 series with an event line-up on Liquipedia | 0.6130 | **0.6048** |
+
+With a fresh line-up the versions are equal. 0.2.0 wins where the live line-up is out of date: −0.0029 [−0.0042; −0.0016] over all series and −0.0082 [−0.0117; −0.0047] where an event line-up is listed (95% bootstrap intervals). The public track record in this repository is the real test.
 
 ## Sources and attribution
 
