@@ -86,7 +86,8 @@ Every commit is made by a public workflow run with its own timestamped log on Gi
    - If two `match_id`s turn out to be one real match, the later one gets `duplicate_of` and the match is scored once, with the forecasts of both.
    - On 10.10.2026 schema 0.2 settled two forecasts of a grand final with the upper-bracket final of the same teams, which had ended before they were made. Both lines were ignored by the scoring rule and corrected by schema 0.3 lines.
 5. **Every line names its model version and parameters.** The track record is reported per version and overall.
-6. **Not scored:** forfeits and draws. They are still recorded in `results/`.
+6. **Not scored:** forfeits, draws and matches not played as listed. They are still recorded in `results/`.
+7. **Not played as listed.** Liquipedia brackets are edited: a pair listed when the forecast was made may never meet. If a match has no result 3 days after its planned start, a result line closes it with `outcome.not_played` and `reason: not_played`. If the same teams meet later, that match is forecast under a new `match_id`.
 
 ## Record format
 
@@ -133,13 +134,15 @@ Every commit is made by a public workflow run with its own timestamped log on Gi
 
 ```json
 {
-  "schema_version": "0.3",
+  "schema_version": "0.4",
   "match_id": "1f0c3a9e5b7d2c41",
   "settled_at": "2026-10-10T17:17:00+00:00",
   "source": "liquipedia",
   "start_time": "2026-10-10T14:10:00+00:00",
   "teams": {"team_a": "Team Vitality", "team_b": "Aurora Gaming"},
-  "outcome": {"winner": "team_a", "score": "2:1", "forfeit": false},
+  "outcome": {"winner": "team_a", "score": "2:1", "forfeit": false,
+              "maps": [{"map": "Mirage", "score": "13:9"}, {"map": "Nuke", "score": "11:13"},
+                       {"map": "Inferno", "score": "13:7"}]},
   "source_fetched_at": "2026-10-10T17:16:41+00:00",
   "attribution": ["Liquipedia (CC BY-SA 3.0), https://liquipedia.net/counterstrike/"],
   "correction_of": null,
@@ -159,8 +162,10 @@ Every commit is made by a public workflow run with its own timestamped log on Gi
 | `confidence.index` | Reliability index 0–100. **Version 0, not yet validated:** data volume 50%, line-up stability 30%, rating data available 20%; capped at 90 until it is checked against outcomes |
 | `scope_tier` | Coverage tier for separate calibration: `global_top30`, `global_31_70`, `regional` |
 | `lineup_source` | In `model`: where the model takes the five players from. In each team: `liquipedia_event` (the event line-up) or `last_known` |
-| `outcome.winner` | `team_a`, `team_b` or `draw`, in the order given by `teams` |
-| `correction_of`, `reason` | In a result: `settled_at` of the line it replaces and why (`result_before_forecast`). In a forecast, `reason` says why a match was re-forecast: `new_model_version` or `lineup_change` |
+| `outcome.winner` | `team_a`, `team_b` or `draw`, in the order given by `teams`; `null` if the match was not played |
+| `outcome.maps` | Since 0.4: every played map with its round score, in the order given by `teams`, when the tournament page has them. A best-of-one listed with its round score keeps it as `score` |
+| `outcome.not_played` | Since 0.4: `true` if the match was not played as listed (rule 7) |
+| `correction_of`, `reason` | In a result: `settled_at` of the line it replaces and why (`result_before_forecast`), or `not_played`. In a forecast, `reason` says why a match was re-forecast: `new_model_version` or `lineup_change` |
 | `duplicate_of` | In a result: the `match_id` this journal match duplicates; the real match is scored once |
 
 ## Check it yourself
