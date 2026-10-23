@@ -98,7 +98,7 @@ Every commit is made by a public workflow run with its own timestamped log on Gi
 {
   "prediction_id": "20261009T171700Z-1f0c3a9e5b7d2c41",
   "created_at": "2026-10-09T17:17:00+00:00",
-  "schema_version": "0.3",
+  "schema_version": "1.0",
   "model": {"name": "team_blend_roster", "version": "0.2.0",
             "params": {"roster_elo_k": 64.0, "vrs_scale": 0.42, "blend_roster_prev_lineup_weight_elo": 0.65},
             "lineup_source": "liquipedia_event"},
@@ -134,7 +134,7 @@ Every commit is made by a public workflow run with its own timestamped log on Gi
 
 ```json
 {
-  "schema_version": "0.4",
+  "schema_version": "1.0",
   "match_id": "1f0c3a9e5b7d2c41",
   "settled_at": "2026-10-10T17:17:00+00:00",
   "source": "liquipedia",
@@ -167,6 +167,22 @@ Every commit is made by a public workflow run with its own timestamped log on Gi
 | `outcome.not_played` | Since 0.4: `true` if the match was not played as listed (rule 7) |
 | `correction_of`, `reason` | In a result: `settled_at` of the line it replaces and why (`result_before_forecast`), or `not_played`. In a forecast, `reason` says why a match was re-forecast: `new_model_version` or `lineup_change` |
 | `duplicate_of` | In a result: the `match_id` this journal match duplicates; the real match is scored once |
+
+## Format versions
+
+The format was frozen as **v1.0** on 23.10.2026.
+
+- **1.x adds only:** new optional fields, new forecast types (maps, players), new reasons for re-forecasts or corrections. How past lines are scored does not change, and the script below keeps working.
+- **2.0** is any change to the scoring rules or to the meaning of an existing field. It is announced here in advance; older lines are scored by the rules of their version.
+- Not part of v1.0: forecast types other than `series_winner`, and the formula of the reliability index (version 0, not validated, marked `index_version`, not used in the metrics).
+
+| Version | Date | Change |
+|---|---|---|
+| 0.1 | 08.10.2026 | First schema: series-winner forecast, model with parameters |
+| 0.2 | 09.10.2026 | Stable `match_id` when matches move; the public journal |
+| 0.3 | 11.10.2026 | A result counts only after the first forecast; `correction_of`, `duplicate_of` |
+| 0.4 | 23.10.2026 | Map scores `outcome.maps`; matches not played as listed (`not_played`) |
+| **1.0** | **23.10.2026** | **0.4 frozen; changes follow the rules above** |
 
 ## Check it yourself
 
