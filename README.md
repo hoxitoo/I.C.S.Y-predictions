@@ -6,7 +6,7 @@
 
 [![Publish](https://github.com/hoxitoo/I.C.S.Y-predictions/actions/workflows/publish.yml/badge.svg)](https://github.com/hoxitoo/I.C.S.Y-predictions/actions/workflows/publish.yml)
 [![License: CC BY-SA 4.0](https://img.shields.io/badge/license-CC%20BY--SA%204.0-lightgrey.svg)](LICENSE)
-![Model](https://img.shields.io/badge/model-team__blend__roster%200.2.0-blue)
+![Model](https://img.shields.io/badge/model-team__blend__roster%200.2.1-blue)
 ![Journal](https://img.shields.io/badge/journal-append--only-success)
 
 **English** · [Русский](README.ru.md)
@@ -38,7 +38,7 @@ Anyone can check the accuracy and calibration from the files alone: no account, 
 | **Forecast** | Probability that each team wins the series (`series_winner`) |
 | **Matches** | Upcoming matches listed on Liquipedia where at least one team is in the top 70 of any Valve Regional Standings ranking (global, Europe, Americas, Asia). Both teams need at least 5 series in the last 180 days. When Liquipedia's match list lags behind, the teams and results are taken from the tournament pages |
 | **Not forecast** | Bo2 series (they can end 1:1), matches with an unknown opponent, teams without ranked history |
-| **Model** | `team_blend_roster` 0.2.0 since 18.10.2026 (0.1.0 before), details [below](#current-model) |
+| **Model** | `team_blend_roster` 0.2.1 since 26.10.2026 (0.2.0 from 18.10.2026, 0.1.0 before), details [below](#current-model) |
 | **Schedule** | Every hour at :17 UTC, started by an external scheduler (GitHub's own schedule starts runs hours late or skips them). A match is usually forecast days ahead, as soon as both teams are known |
 | **Telegram** | [t.me/ICSYpublic](https://t.me/ICSYpublic): new forecasts and results after every run, each linked to its journal line |
 | **Coming next** | Map and player forecasts (kills, deaths, ADR with intervals), weekly calibration reports |
@@ -99,7 +99,7 @@ Every commit is made by a public workflow run with its own timestamped log on Gi
   "prediction_id": "20261009T171700Z-1f0c3a9e5b7d2c41",
   "created_at": "2026-10-09T17:17:00+00:00",
   "schema_version": "1.0",
-  "model": {"name": "team_blend_roster", "version": "0.2.0",
+  "model": {"name": "team_blend_roster", "version": "0.2.1",
             "params": {"roster_elo_k": 64.0, "vrs_scale": 0.42, "blend_roster_prev_lineup_weight_elo": 0.65},
             "lineup_source": "liquipedia_event"},
   "match": {
@@ -250,12 +250,12 @@ For reference, a coin flip scores a log loss of 0.6931 and a Brier score of 0.25
 
 ## Current model
 
-`team_blend_roster` 0.2.0 (since 18.10.2026; 0.1.0 before) combines two signals:
+`team_blend_roster` 0.2.1 (since 26.10.2026; 0.2.0 from 18.10.2026, 0.1.0 before) combines two signals:
 
-- **Roster-aware Elo.** Ratings belong to players, not to team names. A team's strength is the average rating of its five players, a newcomer starts at the level of their new teammates, and a player keeps their rating after a transfer. Line-up changes are the norm: in 79% of series at least one team had changed players in the previous 30 days. The five players are the ones the team lists for the event on Liquipedia where it is listed (new in 0.2.0), otherwise its last known line-up. A stand-in announced on match day may still be missed.
+- **Roster-aware Elo.** Ratings belong to players, not to team names. A team's strength is the average rating of its five players, a newcomer starts at the level of their new teammates, and a player keeps their rating after a transfer. Line-up changes are the norm: in 79% of series at least one team had changed players in the previous 30 days. The five players are the ones the team lists for the event on Liquipedia where it is listed (new in 0.2.0), otherwise its last known line-up. Since 0.2.1 the model also reads what Liquipedia says beyond the list: players marked as substitutes or as having left are not counted, and a stand-in recorded in a note on the team ("X stands in for Y") replaces the missing player from the note's date on. A stand-in recorded nowhere is still missed.
 - **Valve Regional Standings points,** calibrated: Valve's own formula is overconfident and loses to a coin flip on log loss until its logit is scaled down.
 
-Parameters were tuned on series up to 30.06.2025 and frozen; they change only with a new model version (0.2.0 keeps those of 0.1.0).
+Parameters were tuned on series up to 30.06.2025 and frozen; they change only with a new model version (0.2.0 and 0.2.1 keep those of 0.1.0).
 
 **Backtest of 0.1.0** (method of the first research note): out-of-sample check on Valve's series history, 01.07.2025–30.06.2026, 8,426 series where both teams have VRS points, against simple baselines:
 
@@ -277,6 +277,8 @@ Matches between two top-30 teams are much harder: about **62%** of winners picke
 | The same, for the 5,670 series with an event line-up on Liquipedia | 0.6130 | **0.6048** |
 
 With a fresh line-up the versions are equal. 0.2.0 wins where the live line-up is out of date: −0.0029 [−0.0042; −0.0016] over all series and −0.0082 [−0.0117; −0.0047] where an event line-up is listed (95% bootstrap intervals). The public track record in this repository is the real test.
+
+**0.2.1** keeps the parameters of 0.2.0 and adds the stand-in rules. On the same 15,808 series they change the line-up in 12, which then matches the players who actually played in 11 of 12 (1 of 12 before). Log loss over all series is unchanged (+0.0000 [−0.0001; +0.0001]): such matches are rare, but each one is a visible mistake, like TYLOO playing with their coach at PGL Masters Bucharest on 26.10.2026.
 
 ## Sources and attribution
 
