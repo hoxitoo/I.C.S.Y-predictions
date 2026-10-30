@@ -146,7 +146,12 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -q -m "Journal: ${added} new lines, $(date -u +%Y-%m-%dT%H:%MZ)" \
             -m "Model code: hoxitoo/I.C.S.Y-I-Can-See-You-@${code_sha}"
-          git push
+          # Rebase on commits made since the checkout (a README edit), then push again.
+          for attempt in 1 2 3; do
+            if git push -q; then exit 0; fi
+            git pull -q --rebase origin main
+          done
+          exit 1
 
       # Telegram channel: new forecasts and results, each linked to its journal line.
       # Needs the secret TELEGRAM_BOT_TOKEN and the variable TELEGRAM_CHAT_ID (for example
@@ -184,4 +189,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -q -m "Telegram: posts recorded, $(date -u +%Y-%m-%dT%H:%MZ)"
-          git push
+          # Rebase on commits made since the checkout (a README edit), then push again.
+          for attempt in 1 2 3; do
+            if git push -q; then exit 0; fi
+            git pull -q --rebase origin main
+          done
+          exit 1
