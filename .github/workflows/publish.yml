@@ -83,6 +83,18 @@ jobs:
           key: liquipedia-${{ github.run_id }}
           restore-keys: liquipedia-
 
+      # The table of maps and the team codes it needs, for a model that scores series by
+      # their rounds (research 0013, candidate 0.3.0). A cache of its own: a new path in
+      # the Liquipedia cache above would change its version and lose the snapshots.
+      - name: Restore map scores
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            data/silver/liquipedia/maps.parquet
+            data/silver/liquipedia/team_codes.parquet
+          key: mapscores-${{ github.run_id }}
+          restore-keys: mapscores-
+
       - name: Collect VRS
         working-directory: code
         run: |
@@ -96,6 +108,28 @@ jobs:
       - name: Collect Liquipedia
         working-directory: code
         run: uv run --no-sync python -m icsy liquipedia fetch
+
+      # Tournament pages of tiers 1-4 since 2024 go into the Liquipedia cache a few dozen
+      # per run (one request per 2 s; tournament lists one parse per 30 s, also after the
+      # matches page above), then the table of maps is rebuilt. Best effort: a refusal or
+      # a slow Liquipedia only delays the backfill. The published 0.2.2 does not use it.
+      - name: Collect tournament pages (map scores)
+        working-directory: code
+        continue-on-error: true
+        timeout-minutes: 8
+        run: >-
+          uv run --no-sync python -m icsy liquipedia tournaments
+          --tiers 1 2 3 4 --years 2024 2025 2026 --limit 80
+
+      - name: Save map scores
+        if: always()
+        continue-on-error: true
+        uses: actions/cache/save@v6
+        with:
+          path: |
+            data/silver/liquipedia/maps.parquet
+            data/silver/liquipedia/team_codes.parquet
+          key: mapscores-${{ github.run_id }}
 
       - name: Save Liquipedia snapshots
         if: always()
