@@ -112,14 +112,15 @@ jobs:
       # Tournament pages of tiers 1-4 since 2024 go into the Liquipedia cache a few dozen
       # per run (one request per 2 s; tournament lists one parse per 30 s, also after the
       # matches page above), then the table of maps is rebuilt. Best effort: a refusal or
-      # a slow Liquipedia only delays the backfill. The published 0.2.2 does not use it.
+      # a slow Liquipedia only delays the backfill (--polite: no requests after a refusal
+      # in this run, the matches page included). The published 0.2.2 does not use it.
       - name: Collect tournament pages (map scores)
         working-directory: code
         continue-on-error: true
         timeout-minutes: 8
         run: >-
           uv run --no-sync python -m icsy liquipedia tournaments
-          --tiers 1 2 3 4 --years 2024 2025 2026 --limit 80
+          --tiers 1 2 3 4 --years 2024 2025 2026 --limit 80 --polite
 
       - name: Save map scores
         if: always()
