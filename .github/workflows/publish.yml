@@ -114,11 +114,22 @@ jobs:
           path: data/raw/vrs
           key: vrs-${{ steps.month.outputs.value }}
 
+      # pipefail: an error in predict or settle fails the step (behind `| tee` it used to
+      # pass unnoticed). Settle still runs after a failed forecast, the step fails at the
+      # end with an annotation, and the results it recorded are still committed below.
       - name: Forecast and settle
         working-directory: code
         run: |
-          uv run --no-sync python -m icsy predict teams --journal "$JOURNAL" | tee forecast.log
-          uv run --no-sync python -m icsy settle teams --journal "$JOURNAL" | tee settle.log
+          set -o pipefail
+          failed=0
+          if ! uv run --no-sync python -m icsy predict teams --journal "$JOURNAL" | tee forecast.log; then
+            failed=1
+            echo "::error title=Forecast failed::predict teams exited with an error (see this step's log)"
+          fi
+          if ! uv run --no-sync python -m icsy settle teams --journal "$JOURNAL" | tee settle.log; then
+            failed=1
+            echo "::error title=Settle failed::settle teams exited with an error (see this step's log)"
+          fi
           {
             echo "### Forecasts"
             echo '```'
@@ -129,8 +140,12 @@ jobs:
             cat settle.log
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+          exit "$failed"
 
+      # Also after a failed forecast or settle: whatever was appended is committed (lines
+      # are written whole and only appended); the run itself stays failed.
       - name: Commit and push
+        if: ${{ !cancelled() }}
         working-directory: journal
         run: |
           code_sha=$(git -C "$GITHUB_WORKSPACE/code" rev-parse --short HEAD)
