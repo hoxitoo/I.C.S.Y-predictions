@@ -136,6 +136,14 @@ jobs:
             data/silver/liquipedia/team_codes.parquet
           key: mapscores-${{ github.run_id }}
 
+      # Data checks every run (implementation plan, stage 2): Liquipedia map scores by the
+      # rules of the game, series winners against Valve's data. Below 99% the run gets a
+      # warning annotation; the run does not fail.
+      - name: Check data quality
+        working-directory: code
+        continue-on-error: true
+        run: uv run --no-sync python -m icsy verify data --min-share 0.99
+
       - name: Save Liquipedia snapshots
         if: always()
         continue-on-error: true
