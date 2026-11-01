@@ -36,10 +36,14 @@ jobs:
       ICSY_CONTACT_EMAIL: ${{ vars.ICSY_CONTACT_EMAIL || 'https://github.com/hoxitoo/I.C.S.Y-predictions' }}
       JOURNAL: ${{ github.workspace }}/journal
     steps:
+      # The branch as it is now, not the commit the run was created on: a run queued behind
+      # another (a late scheduled run, then the hourly trigger) must see what that run
+      # committed, or it settles and posts the same things again (2026-11-01 15:17).
       - name: Check out the journal
         uses: actions/checkout@v7
         with:
           path: journal
+          ref: main
 
       - name: Check out the model code
         uses: actions/checkout@v7
