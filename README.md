@@ -73,8 +73,10 @@ Every commit is made by a public workflow run with its own timestamped log on Gi
 |---|---|
 | [`predictions/YYYY-MM-DD.jsonl`](predictions/) | Forecasts created that day (UTC), one JSON object per line |
 | [`results/YYYY-MM-DD.jsonl`](results/) | Match outcomes recorded that day |
-| `reports/` | Weekly calibration reports (coming) |
+| [`reports/weekly/YYYY-Www.json`](reports/weekly/) | Weekly calibration report (ISO week, UTC), since 19.11.2026 |
 | `telegram/posted.jsonl` | What was posted to the Telegram channel and when (append-only) |
+
+**Weekly reports** are written by the publishing bot on its first run after a week has ended and are never rewritten. A week holds the series settled in it, scored as in the track record, and the record to date. Every series also lists the probabilities of two simple models on the same match: Elo by team name (no line-ups) and calibrated VRS points (50% without points). Their parameters were frozen before the journal began (fitted on series before 01.07.2025); their probabilities are rebuilt after the fact from the data known before the forecast, not published in advance. The reports are derived from the journal and are not part of its format.
 
 ## Journal rules
 

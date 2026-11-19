@@ -189,6 +189,15 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
           exit "$failed"
 
+      # Weekly calibration report with reference models (reports/weekly/YYYY-Www.json),
+      # written on the first run after an ISO week has ended and never rewritten. A
+      # failure here leaves the publication as it is.
+      - name: Weekly report
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        working-directory: code
+        run: uv run --no-sync python -m icsy report weekly --journal "$JOURNAL"
+
       # Also after a failed forecast or settle: whatever was appended is committed (lines
       # are written whole and only appended); the run itself stays failed.
       - name: Commit and push
@@ -196,7 +205,7 @@ jobs:
         working-directory: journal
         run: |
           code_sha=$(git -C "$GITHUB_WORKSPACE/code" rev-parse --short HEAD)
-          for dir in predictions results; do
+          for dir in predictions results reports; do
             if [ -d "$dir" ]; then git add "$dir"; fi
           done
           if git diff --cached --quiet; then
