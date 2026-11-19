@@ -124,7 +124,7 @@ jobs:
         timeout-minutes: 8
         run: >-
           uv run --no-sync python -m icsy liquipedia tournaments
-          --tiers 1 2 3 4 --years 2024 2025 2026 --limit 80 --polite
+          --tiers 1 2 3 4 --years 2024 2025 2026 2027 --limit 80 --polite
 
       - name: Save map scores
         if: always()
