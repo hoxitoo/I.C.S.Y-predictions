@@ -1,0 +1,793 @@
+{
+ "report_version": "1",
+ "week": "2026-W46",
+ "from": "2026-11-09T00:00:00+00:00",
+ "to": "2026-11-16T00:00:00+00:00",
+ "generated_at": "2026-11-19T16:02:24.049903+00:00",
+ "baselines": {
+  "vrs_calibrated": "Valve's expectation from VRS points, logit scaled (50% without points)",
+  "elo_name": "Elo by team name over results known before the forecast",
+  "frozen": "config/models/baselines.yaml, fitted on series before 2025-07-01"
+ },
+ "week_summary": {
+  "model": {
+   "n": 30,
+   "log_loss": {
+    "value": 0.5994,
+    "low": 0.4427,
+    "high": 0.7863
+   },
+   "brier": {
+    "value": 0.2033,
+    "low": 0.135,
+    "high": 0.2829
+   },
+   "accuracy": {
+    "value": 0.7667,
+    "low": 0.6,
+    "high": 0.9
+   },
+   "ece": 0.1349,
+   "favourite": {
+    "forecast": 0.7054,
+    "won": 0.7667
+   }
+  },
+  "against": {
+   "vrs_calibrated": {
+    "log_loss": 0.6326,
+    "model_minus": {
+     "value": -0.0333,
+     "low": -0.0948,
+     "high": 0.04
+    }
+   },
+   "elo_name": {
+    "log_loss": 0.6497,
+    "model_minus": {
+     "value": -0.0503,
+     "low": -0.1273,
+     "high": 0.0196
+    }
+   },
+   "coin": {
+    "log_loss": 0.6931,
+    "model_minus": {
+     "value": -0.0938,
+     "low": -0.2505,
+     "high": 0.0931
+    }
+   }
+  }
+ },
+ "to_date": {
+  "model": {
+   "n": 269,
+   "log_loss": {
+    "value": 0.6322,
+    "low": 0.586,
+    "high": 0.675
+   },
+   "brier": {
+    "value": 0.2217,
+    "low": 0.2015,
+    "high": 0.2413
+   },
+   "accuracy": {
+    "value": 0.6245,
+    "low": 0.5688,
+    "high": 0.6803
+   },
+   "ece": 0.0438,
+   "favourite": {
+    "forecast": 0.6665,
+    "won": 0.6245
+   }
+  },
+  "against": {
+   "vrs_calibrated": {
+    "log_loss": 0.6594,
+    "model_minus": {
+     "value": -0.0272,
+     "low": -0.0517,
+     "high": -0.0029
+    }
+   },
+   "elo_name": {
+    "log_loss": 0.6265,
+    "model_minus": {
+     "value": 0.0057,
+     "low": -0.0153,
+     "high": 0.0273
+    }
+   },
+   "coin": {
+    "log_loss": 0.6931,
+    "model_minus": {
+     "value": -0.0609,
+     "low": -0.1072,
+     "high": -0.0182
+    }
+   }
+  }
+ },
+ "to_date_by_tier": {
+  "global_top30": {
+   "model": {
+    "n": 90,
+    "log_loss": {
+     "value": 0.6658,
+     "low": 0.5979,
+     "high": 0.7352
+    },
+    "brier": {
+     "value": 0.2362,
+     "low": 0.2046,
+     "high": 0.2686
+    },
+    "accuracy": {
+     "value": 0.6111,
+     "low": 0.5111,
+     "high": 0.7111
+    },
+    "ece": 0.047,
+    "favourite": {
+     "forecast": 0.6427,
+     "won": 0.6111
+    }
+   },
+   "against": {
+    "vrs_calibrated": {
+     "log_loss": 0.6814,
+     "model_minus": {
+      "value": -0.0156,
+      "low": -0.0523,
+      "high": 0.0238
+     }
+    },
+    "elo_name": {
+     "log_loss": 0.6709,
+     "model_minus": {
+      "value": -0.0052,
+      "low": -0.04,
+      "high": 0.0277
+     }
+    },
+    "coin": {
+     "log_loss": 0.6931,
+     "model_minus": {
+      "value": -0.0274,
+      "low": -0.0952,
+      "high": 0.0421
+     }
+    }
+   }
+  },
+  "global_31_70": {
+   "model": {
+    "n": 96,
+    "log_loss": {
+     "value": 0.6913,
+     "low": 0.627,
+     "high": 0.7601
+    },
+    "brier": {
+     "value": 0.249,
+     "low": 0.2196,
+     "high": 0.2804
+    },
+    "accuracy": {
+     "value": 0.5312,
+     "low": 0.4271,
+     "high": 0.6354
+    },
+    "ece": 0.1123,
+    "favourite": {
+     "forecast": 0.6365,
+     "won": 0.5312
+    }
+   },
+   "against": {
+    "vrs_calibrated": {
+     "log_loss": 0.7279,
+     "model_minus": {
+      "value": -0.0366,
+      "low": -0.079,
+      "high": 0.0064
+     }
+    },
+    "elo_name": {
+     "log_loss": 0.6862,
+     "model_minus": {
+      "value": 0.0051,
+      "low": -0.0344,
+      "high": 0.0429
+     }
+    },
+    "coin": {
+     "log_loss": 0.6931,
+     "model_minus": {
+      "value": -0.0018,
+      "low": -0.0661,
+      "high": 0.0669
+     }
+    }
+   }
+  },
+  "regional": {
+   "model": {
+    "n": 83,
+    "log_loss": {
+     "value": 0.5275,
+     "low": 0.4361,
+     "high": 0.6309
+    },
+    "brier": {
+     "value": 0.1744,
+     "low": 0.1354,
+     "high": 0.2187
+    },
+    "accuracy": {
+     "value": 0.747,
+     "low": 0.6506,
+     "high": 0.8313
+    },
+    "ece": 0.0776,
+    "favourite": {
+     "forecast": 0.7271,
+     "won": 0.747
+    }
+   },
+   "against": {
+    "vrs_calibrated": {
+     "log_loss": 0.5564,
+     "model_minus": {
+      "value": -0.0289,
+      "low": -0.0704,
+      "high": 0.0148
+     }
+    },
+    "elo_name": {
+     "log_loss": 0.5092,
+     "model_minus": {
+      "value": 0.0182,
+      "low": -0.0248,
+      "high": 0.062
+     }
+    },
+    "coin": {
+     "log_loss": 0.6931,
+     "model_minus": {
+      "value": -0.1657,
+      "low": -0.2571,
+      "high": -0.0622
+     }
+    }
+   }
+  }
+ },
+ "to_date_calibration": [
+  {
+   "bin_low": 0.0,
+   "bin_high": 0.1,
+   "n": 4,
+   "mean_forecast": 0.05987500000000001,
+   "observed_rate": 0.0
+  },
+  {
+   "bin_low": 0.1,
+   "bin_high": 0.2,
+   "n": 30,
+   "mean_forecast": 0.15806333333333333,
+   "observed_rate": 0.2
+  },
+  {
+   "bin_low": 0.2,
+   "bin_high": 0.30000000000000004,
+   "n": 64,
+   "mean_forecast": 0.2566421875,
+   "observed_rate": 0.296875
+  },
+  {
+   "bin_low": 0.30000000000000004,
+   "bin_high": 0.4,
+   "n": 86,
+   "mean_forecast": 0.35289418604651157,
+   "observed_rate": 0.36046511627906974
+  },
+  {
+   "bin_low": 0.4,
+   "bin_high": 0.5,
+   "n": 85,
+   "mean_forecast": 0.4464705882352942,
+   "observed_rate": 0.5294117647058824
+  },
+  {
+   "bin_low": 0.5,
+   "bin_high": 0.6000000000000001,
+   "n": 85,
+   "mean_forecast": 0.5535294117647058,
+   "observed_rate": 0.47058823529411764
+  },
+  {
+   "bin_low": 0.6000000000000001,
+   "bin_high": 0.7000000000000001,
+   "n": 86,
+   "mean_forecast": 0.6471058139534883,
+   "observed_rate": 0.6395348837209303
+  },
+  {
+   "bin_low": 0.7000000000000001,
+   "bin_high": 0.8,
+   "n": 63,
+   "mean_forecast": 0.7424587301587302,
+   "observed_rate": 0.6984126984126984
+  },
+  {
+   "bin_low": 0.8,
+   "bin_high": 0.9,
+   "n": 31,
+   "mean_forecast": 0.840583870967742,
+   "observed_rate": 0.8064516129032258
+  },
+  {
+   "bin_low": 0.9,
+   "bin_high": 1.0,
+   "n": 4,
+   "mean_forecast": 0.940125,
+   "observed_rate": 1.0
+  }
+ ],
+ "series": [
+  {
+   "match_id": "6fa6f3fb91f5368a",
+   "prediction_id": "20261101T191833Z-6fa6f3fb91f5368a",
+   "start_time": "2026-11-11T05:30:00+00:00",
+   "settled_at": "2026-11-11T07:20:02.106284+00:00",
+   "scope_tier": "global_top30",
+   "model_version": "0.3.0",
+   "team_a": "Team Vitality",
+   "team_b": "Team Falcons",
+   "team_a_won": 1,
+   "p_model": 0.5637,
+   "p_vrs_calibrated": 0.5918,
+   "p_elo_name": 0.6062,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "ba90ef83995c95ed",
+   "prediction_id": "20261101T191833Z-ba90ef83995c95ed",
+   "start_time": "2026-11-11T10:30:00+00:00",
+   "settled_at": "2026-11-11T13:20:10.534240+00:00",
+   "scope_tier": "global_top30",
+   "model_version": "0.3.0",
+   "team_a": "MOUZ",
+   "team_b": "G2 Esports",
+   "team_a_won": 0,
+   "p_model": 0.7293,
+   "p_vrs_calibrated": 0.6919,
+   "p_elo_name": 0.8348,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "bde9c6074e7f2f83",
+   "prediction_id": "20261104T021914Z-bde9c6074e7f2f83",
+   "start_time": "2026-11-11T02:00:00+00:00",
+   "settled_at": "2026-11-11T04:20:17.898913+00:00",
+   "scope_tier": "global_top30",
+   "model_version": "0.3.0",
+   "team_a": "Legacy",
+   "team_b": "FURIA",
+   "team_a_won": 0,
+   "p_model": 0.2,
+   "p_vrs_calibrated": 0.3571,
+   "p_elo_name": 0.1409,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "94d22fd97e60bfe3",
+   "prediction_id": "20261108T212018Z-94d22fd97e60bfe3",
+   "start_time": "2026-11-09T14:00:00+00:00",
+   "settled_at": "2026-11-09T18:19:19.546907+00:00",
+   "scope_tier": "regional",
+   "model_version": "0.3.0",
+   "team_a": "9INE",
+   "team_b": "Aimclub",
+   "team_a_won": 1,
+   "p_model": 0.5335,
+   "p_vrs_calibrated": 0.4765,
+   "p_elo_name": 0.6147,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "c2f081651da7235e",
+   "prediction_id": "20261108T212018Z-c2f081651da7235e",
+   "start_time": "2026-11-09T14:00:00+00:00",
+   "settled_at": "2026-11-09T18:19:19.546907+00:00",
+   "scope_tier": "global_31_70",
+   "model_version": "0.3.0",
+   "team_a": "Alliance",
+   "team_b": "FOKUS",
+   "team_a_won": 0,
+   "p_model": 0.3819,
+   "p_vrs_calibrated": 0.4976,
+   "p_elo_name": 0.4355,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "f2394642845d3286",
+   "prediction_id": "20261109T011919Z-f2394642845d3286",
+   "start_time": "2026-11-11T11:30:00+00:00",
+   "settled_at": "2026-11-11T16:20:21.761219+00:00",
+   "scope_tier": "regional",
+   "model_version": "0.3.0",
+   "team_a": "Esport Academy Copenhagen",
+   "team_b": "EYEBALLERS",
+   "team_a_won": 0,
+   "p_model": 0.2202,
+   "p_vrs_calibrated": 0.3485,
+   "p_elo_name": 0.3068,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "91efabe14a0c2b57",
+   "prediction_id": "20261109T181919Z-91efabe14a0c2b57",
+   "start_time": "2026-11-10T11:30:00+00:00",
+   "settled_at": "2026-11-10T15:19:19.947841+00:00",
+   "scope_tier": "regional",
+   "model_version": "0.3.0",
+   "team_a": "FORZE Reload",
+   "team_b": "MOUZ NXT",
+   "team_a_won": 1,
+   "p_model": 0.7126,
+   "p_vrs_calibrated": 0.6386,
+   "p_elo_name": 0.8335,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "76809d1166749aa8",
+   "prediction_id": "20261110T151919Z-76809d1166749aa8",
+   "start_time": "2026-11-12T09:00:00+00:00",
+   "settled_at": "2026-11-12T13:19:46.745310+00:00",
+   "scope_tier": "regional",
+   "model_version": "0.3.0",
+   "team_a": "MOUZ NXT",
+   "team_b": "Natus Vincere Junior",
+   "team_a_won": 1,
+   "p_model": 0.2717,
+   "p_vrs_calibrated": 0.3453,
+   "p_elo_name": 0.2963,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "dbc4a70b69eb221e",
+   "prediction_id": "20261110T191959Z-dbc4a70b69eb221e",
+   "start_time": "2026-11-11T07:00:00+00:00",
+   "settled_at": "2026-11-11T10:19:58.555095+00:00",
+   "scope_tier": "global_top30",
+   "model_version": "0.3.0",
+   "team_a": "Team Spirit",
+   "team_b": "FUT Esports",
+   "team_a_won": 1,
+   "p_model": 0.6853,
+   "p_vrs_calibrated": 0.5707,
+   "p_elo_name": 0.578,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "4ac08a2509297c11",
+   "prediction_id": "20261111T072002Z-4ac08a2509297c11",
+   "start_time": "2026-11-12T02:00:00+00:00",
+   "settled_at": "2026-11-12T04:19:35.858127+00:00",
+   "scope_tier": "global_top30",
+   "model_version": "0.3.0",
+   "team_a": "Legacy",
+   "team_b": "Team Falcons",
+   "team_a_won": 0,
+   "p_model": 0.2961,
+   "p_vrs_calibrated": 0.4403,
+   "p_elo_name": 0.2425,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "a9fa7aac4fd5efe7",
+   "prediction_id": "20261111T072002Z-a9fa7aac4fd5efe7",
+   "start_time": "2026-11-12T04:30:00+00:00",
+   "settled_at": "2026-11-12T07:18:50.378235+00:00",
+   "scope_tier": "global_top30",
+   "model_version": "0.3.0",
+   "team_a": "FURIA",
+   "team_b": "Team Vitality",
+   "team_a_won": 1,
+   "p_model": 0.5216,
+   "p_vrs_calibrated": 0.4941,
+   "p_elo_name": 0.3955,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "b5a02d0225edbbd0",
+   "prediction_id": "20261111T132010Z-b5a02d0225edbbd0",
+   "start_time": "2026-11-12T07:00:00+00:00",
+   "settled_at": "2026-11-12T11:19:53.965725+00:00",
+   "scope_tier": "global_top30",
+   "model_version": "0.3.0",
+   "team_a": "FUT Esports",
+   "team_b": "MOUZ",
+   "team_a_won": 0,
+   "p_model": 0.2086,
+   "p_vrs_calibrated": 0.3631,
+   "p_elo_name": 0.2722,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "cec8dabcf600ae90",
+   "prediction_id": "20261111T132010Z-cec8dabcf600ae90",
+   "start_time": "2026-11-12T09:30:00+00:00",
+   "settled_at": "2026-11-12T14:19:23.587363+00:00",
+   "scope_tier": "global_top30",
+   "model_version": "0.3.0",
+   "team_a": "Team Spirit",
+   "team_b": "G2 Esports",
+   "team_a_won": 1,
+   "p_model": 0.6554,
+   "p_vrs_calibrated": 0.6298,
+   "p_elo_name": 0.7743,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "1063c4bc325d4ddd",
+   "prediction_id": "20261111T151803Z-1063c4bc325d4ddd",
+   "start_time": "2026-11-12T14:00:00+00:00",
+   "settled_at": "2026-11-12T16:19:18.322895+00:00",
+   "scope_tier": "regional",
+   "model_version": "0.3.0",
+   "team_a": "Alliance",
+   "team_b": "Four Magic",
+   "team_a_won": 1,
+   "p_model": 0.8596,
+   "p_vrs_calibrated": 0.8021,
+   "p_elo_name": 0.8969,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "b2575be42207d301",
+   "prediction_id": "20261112T112117Z-b2575be42207d301",
+   "start_time": "2026-11-13T08:00:00+00:00",
+   "settled_at": "2026-11-13T10:18:49.485418+00:00",
+   "scope_tier": "global_top30",
+   "model_version": "0.3.0",
+   "team_a": "Team Vitality",
+   "team_b": "MOUZ",
+   "team_a_won": 0,
+   "p_model": 0.3395,
+   "p_vrs_calibrated": 0.4777,
+   "p_elo_name": 0.4337,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "bc01b4335d047f1e",
+   "prediction_id": "20261112T141923Z-bc01b4335d047f1e",
+   "start_time": "2026-11-13T10:30:00+00:00",
+   "settled_at": "2026-11-13T14:19:48.479688+00:00",
+   "scope_tier": "global_top30",
+   "model_version": "0.3.0",
+   "team_a": "G2 Esports",
+   "team_b": "Team Falcons",
+   "team_a_won": 0,
+   "p_model": 0.3495,
+   "p_vrs_calibrated": 0.4138,
+   "p_elo_name": 0.2807,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "8c6220e58b8dc00f",
+   "prediction_id": "20261112T171951Z-8c6220e58b8dc00f",
+   "start_time": "2026-11-12T18:00:00+00:00",
+   "settled_at": "2026-11-12T23:18:50.734802+00:00",
+   "scope_tier": "regional",
+   "model_version": "0.3.0",
+   "team_a": "Alliance",
+   "team_b": "Noir Verse",
+   "team_a_won": 0,
+   "p_model": 0.8529,
+   "p_vrs_calibrated": 0.78,
+   "p_elo_name": 0.9041,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "32985d445ca4b2dc",
+   "prediction_id": "20261112T231850Z-32985d445ca4b2dc",
+   "start_time": "2026-11-13T14:00:00+00:00",
+   "settled_at": "2026-11-13T18:18:45.922730+00:00",
+   "scope_tier": "regional",
+   "model_version": "0.3.0",
+   "team_a": "Alliance",
+   "team_b": "Four Magic",
+   "team_a_won": 1,
+   "p_model": 0.8346,
+   "p_vrs_calibrated": 0.8021,
+   "p_elo_name": 0.8776,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "e79ddfc6074c0f86",
+   "prediction_id": "20261113T101849Z-e79ddfc6074c0f86",
+   "start_time": "2026-11-13T12:00:00+00:00",
+   "settled_at": "2026-11-13T16:19:33.106750+00:00",
+   "scope_tier": "regional",
+   "model_version": "0.3.0",
+   "team_a": "PRIVATE",
+   "team_b": "Butterfly",
+   "team_a_won": 1,
+   "p_model": 0.7598,
+   "p_vrs_calibrated": 0.6939,
+   "p_elo_name": 0.7503,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "16e015dc4bb6a6bc",
+   "prediction_id": "20261113T101849Z-16e015dc4bb6a6bc",
+   "start_time": "2026-11-13T15:00:00+00:00",
+   "settled_at": "2026-11-13T18:18:45.922730+00:00",
+   "scope_tier": "regional",
+   "model_version": "0.3.0",
+   "team_a": "Betclic Apogee Esports",
+   "team_b": "Leo Team",
+   "team_a_won": 1,
+   "p_model": 0.8536,
+   "p_vrs_calibrated": 0.6954,
+   "p_elo_name": 0.8282,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "7e8959ef8539d9bc",
+   "prediction_id": "20261113T101849Z-7e8959ef8539d9bc",
+   "start_time": "2026-11-14T08:00:00+00:00",
+   "settled_at": "2026-11-14T10:19:22.837812+00:00",
+   "scope_tier": "global_top30",
+   "model_version": "0.3.0",
+   "team_a": "Team Spirit",
+   "team_b": "MOUZ",
+   "team_a_won": 1,
+   "p_model": 0.3237,
+   "p_vrs_calibrated": 0.4311,
+   "p_elo_name": 0.3616,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "06f73abe9e410a36",
+   "prediction_id": "20261113T101849Z-06f73abe9e410a36",
+   "start_time": "2026-11-14T12:00:00+00:00",
+   "settled_at": "2026-11-14T14:18:54.285217+00:00",
+   "scope_tier": "regional",
+   "model_version": "0.3.0",
+   "team_a": "Virtus.pro",
+   "team_b": "BAKS Esports",
+   "team_a_won": 1,
+   "p_model": 0.7336,
+   "p_vrs_calibrated": 0.7028,
+   "p_elo_name": 0.8387,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "02655b3be0895782",
+   "prediction_id": "20261113T101849Z-02655b3be0895782",
+   "start_time": "2026-11-14T15:00:00+00:00",
+   "settled_at": "2026-11-14T19:18:56.692153+00:00",
+   "scope_tier": "regional",
+   "model_version": "0.3.0",
+   "team_a": "Iberian Soul",
+   "team_b": "FORZE Reload",
+   "team_a_won": 1,
+   "p_model": 0.7188,
+   "p_vrs_calibrated": 0.6127,
+   "p_elo_name": 0.5892,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "0f15eb3c40ba3064",
+   "prediction_id": "20261113T141948Z-0f15eb3c40ba3064",
+   "start_time": "2026-11-14T10:30:00+00:00",
+   "settled_at": "2026-11-14T14:18:54.285217+00:00",
+   "scope_tier": "global_top30",
+   "model_version": "0.3.0",
+   "team_a": "FURIA",
+   "team_b": "Team Falcons",
+   "team_a_won": 1,
+   "p_model": 0.6259,
+   "p_vrs_calibrated": 0.5862,
+   "p_elo_name": 0.6059,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "2908ff3d6dc29407",
+   "prediction_id": "20261114T051929Z-2908ff3d6dc29407",
+   "start_time": "2026-11-14T14:00:00+00:00",
+   "settled_at": "2026-11-14T17:18:41.172982+00:00",
+   "scope_tier": "regional",
+   "model_version": "0.3.0",
+   "team_a": "Alliance",
+   "team_b": "Ex-INOX Division",
+   "team_a_won": 1,
+   "p_model": 0.6369,
+   "p_vrs_calibrated": 0.6298,
+   "p_elo_name": 0.612,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "349e8393d520754b",
+   "prediction_id": "20261114T141854Z-349e8393d520754b",
+   "start_time": "2026-11-15T08:00:00+00:00",
+   "settled_at": "2026-11-15T11:19:18.647319+00:00",
+   "scope_tier": "global_top30",
+   "model_version": "0.3.0",
+   "team_a": "FURIA",
+   "team_b": "Team Spirit",
+   "team_a_won": 1,
+   "p_model": 0.5675,
+   "p_vrs_calibrated": 0.5411,
+   "p_elo_name": 0.5061,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "1cfd591309368db4",
+   "prediction_id": "20261114T171841Z-1cfd591309368db4",
+   "start_time": "2026-11-14T18:00:00+00:00",
+   "settled_at": "2026-11-14T21:18:49.778862+00:00",
+   "scope_tier": "regional",
+   "model_version": "0.3.0",
+   "team_a": "MAYBE",
+   "team_b": "Ex-INOX Division",
+   "team_a_won": 0,
+   "p_model": 0.2231,
+   "p_vrs_calibrated": 0.3172,
+   "p_elo_name": 0.1592,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "5355c6dccc3b68a8",
+   "prediction_id": "20261114T171841Z-5355c6dccc3b68a8",
+   "start_time": "2026-11-14T18:00:00+00:00",
+   "settled_at": "2026-11-14T22:18:46.314031+00:00",
+   "scope_tier": "regional",
+   "model_version": "0.3.0",
+   "team_a": "Noir Verse",
+   "team_b": "Alliance",
+   "team_a_won": 1,
+   "p_model": 0.1975,
+   "p_vrs_calibrated": 0.22,
+   "p_elo_name": 0.1353,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "845bba6fcda29f1d",
+   "prediction_id": "20261114T221846Z-845bba6fcda29f1d",
+   "start_time": "2026-11-15T12:00:00+00:00",
+   "settled_at": "2026-11-15T15:18:47.682296+00:00",
+   "scope_tier": "regional",
+   "model_version": "0.3.0",
+   "team_a": "OMEGA",
+   "team_b": "Iberian Soul",
+   "team_a_won": 1,
+   "p_model": 0.3586,
+   "p_vrs_calibrated": 0.3724,
+   "p_elo_name": 0.2163,
+   "vrs_points_both": true
+  },
+  {
+   "match_id": "db192b9dbe838d16",
+   "prediction_id": "20261114T221846Z-db192b9dbe838d16",
+   "start_time": "2026-11-15T18:00:00+00:00",
+   "settled_at": "2026-11-15T22:19:21.057681+00:00",
+   "scope_tier": "global_31_70",
+   "model_version": "0.3.0",
+   "team_a": "Betclic Apogee Esports",
+   "team_b": "PRIVATE",
+   "team_a_won": 0,
+   "p_model": 0.6867,
+   "p_vrs_calibrated": 0.483,
+   "p_elo_name": 0.5637,
+   "vrs_points_both": true
+  }
+ ]
+}
