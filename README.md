@@ -6,7 +6,7 @@
 
 [![Publish](https://github.com/hoxitoo/I.C.S.Y-predictions/actions/workflows/publish.yml/badge.svg)](https://github.com/hoxitoo/I.C.S.Y-predictions/actions/workflows/publish.yml)
 [![License: CC BY-SA 4.0](https://img.shields.io/badge/license-CC%20BY--SA%204.0-lightgrey.svg)](LICENSE)
-![Model](https://img.shields.io/badge/model-team__blend__roster%200.2.2-blue)
+![Model](https://img.shields.io/badge/model-team__blend__roster%200.3.0-blue)
 ![Journal](https://img.shields.io/badge/journal-append--only-success)
 
 **English** · [Русский](README.ru.md)
@@ -38,7 +38,7 @@ Anyone can check the accuracy and calibration from the files alone: no account, 
 | **Forecast** | Probability that each team wins the series (`series_winner`) |
 | **Matches** | Upcoming matches listed on Liquipedia where at least one team is in the top 70 of any Valve Regional Standings ranking (global, Europe, Americas, Asia). Both teams need at least 5 series in the last 180 days. When Liquipedia's match list lags behind, the teams and results are taken from the tournament pages |
 | **Not forecast** | Bo2 series (they can end 1:1), matches with an unknown opponent, teams without ranked history |
-| **Model** | `team_blend_roster` 0.2.2 since 30.10.2026 (0.2.1 from 26.10.2026, 0.2.0 from 18.10.2026, 0.1.0 before), details [below](#current-model) |
+| **Model** | `team_blend_roster` 0.3.0 since 01.11.2026 (0.2.2 from 30.10.2026, 0.2.1 from 26.10.2026, 0.2.0 from 18.10.2026, 0.1.0 before), details [below](#current-model) |
 | **Schedule** | Every hour at :17 UTC, started by an external scheduler (GitHub's own schedule starts runs hours late or skips them). A match is usually forecast days ahead, as soon as both teams are known |
 | **Telegram** | [t.me/ICSYpublic](https://t.me/ICSYpublic): new forecasts and results after every run, each linked to its journal line |
 | **Coming next** | Map and player forecasts (kills, deaths, ADR with intervals), weekly calibration reports |
@@ -99,9 +99,10 @@ Every commit is made by a public workflow run with its own timestamped log on Gi
   "prediction_id": "20261009T171700Z-1f0c3a9e5b7d2c41",
   "created_at": "2026-10-09T17:17:00+00:00",
   "schema_version": "1.0",
-  "model": {"name": "team_blend_roster", "version": "0.2.2",
-            "params": {"roster_elo_k": 64.0, "vrs_scale": 0.42, "blend_roster_prev_lineup_weight_elo": 0.65,
-                       "logit_scale": 0.9},
+  "model": {"name": "team_blend_roster", "version": "0.3.0",
+            "params": {"roster_elo_k": 256.0, "vrs_scale": 0.42, "blend_roster_prev_lineup_weight_elo": 0.4,
+                       "logit_scale": 1.275, "logit_scale_bo1": 0.875, "logit_tail": 3.0,
+                       "round_margin_lam": 1.0, "round_margin_slope": 10.0, "round_margin_beta": 0.6},
             "lineup_source": "liquipedia_event"},
   "match": {
     "match_id": "1f0c3a9e5b7d2c41",
@@ -251,12 +252,12 @@ For reference, a coin flip scores a log loss of 0.6931 and a Brier score of 0.25
 
 ## Current model
 
-`team_blend_roster` 0.2.2 (since 30.10.2026; 0.2.1 from 26.10.2026, 0.2.0 from 18.10.2026, 0.1.0 before) combines two signals:
+`team_blend_roster` 0.3.0 (since 01.11.2026; 0.2.2 from 30.10.2026, 0.2.1 from 26.10.2026, 0.2.0 from 18.10.2026, 0.1.0 before) combines two signals:
 
 - **Roster-aware Elo.** Ratings belong to players, not to team names. A team's strength is the average rating of its five players, a newcomer starts at the level of their new teammates, and a player keeps their rating after a transfer. Line-up changes are the norm: in 79% of series at least one team had changed players in the previous 30 days. The five players are the ones the team lists for the event on Liquipedia where it is listed (new in 0.2.0), otherwise its last known line-up. Since 0.2.1 the model also reads what Liquipedia says beyond the list: players marked as substitutes or as having left are not counted, and a stand-in recorded in a note on the team ("X stands in for Y") replaces the missing player from the note's date on. A stand-in recorded nowhere is still missed.
 - **Valve Regional Standings points,** calibrated: Valve's own formula is overconfident and loses to a coin flip on log loss until its logit is scaled down.
 
-Parameters were tuned on series up to 30.06.2025 and frozen; they change only with a new model version (0.2.0 and 0.2.1 keep those of 0.1.0; 0.2.2 adds a confidence scale, see below).
+Parameters were tuned on series up to 30.06.2025 and frozen; they change only with a new model version (0.2.0 and 0.2.1 keep those of 0.1.0; 0.2.2 adds a confidence scale; 0.3.0 learns from round scores, see below).
 
 **Backtest of 0.1.0** (method of the first research note): out-of-sample check on Valve's series history, 01.07.2025–30.06.2026, 8,426 series where both teams have VRS points, against simple baselines:
 
@@ -282,6 +283,16 @@ With a fresh line-up the versions are equal. 0.2.0 wins where the live line-up i
 **0.2.1** keeps the parameters of 0.2.0 and adds the stand-in rules. On the same 15,808 series they change the line-up in 12, which then matches the players who actually played in 11 of 12 (1 of 12 before). Log loss over all series is unchanged (+0.0000 [−0.0001; +0.0001]): such matches are rare, but each one is a visible mistake, like TYLOO playing with their coach at PGL Masters Bucharest on 26.10.2026.
 
 **0.2.2** multiplies every forecast's logit by 0.9 (`logit_scale`), so 70% becomes about 68% and 80% about 78%. In the backtest the model was about one point over-confident in every tier of teams; the scale was fitted on the year before the validation window and improves its log loss by 0.0014 [−0.0021; −0.0007]. A separate scale per tier did worse.
+
+**0.3.0** lets the ratings learn from round scores. Where Liquipedia's tournament pages give the score of every map, a series counts by the share of rounds each side won (a 13-2, 13-3 win says more than 13-11, 11-13, 16-14), compared with what was expected from the ratings: crushing a much weaker team adds little, crushing an equal one adds a lot. The ratings react faster (K 256 instead of 64), and the blended forecast is compressed at the extremes and scaled, with a separate scale for best-of-one matches. Parameters were chosen on the year before the validation window, with the journal's mix of tiers (top 30, 31–70, regional), and frozen. Against 0.2.2 (log loss, the journal's mix of tiers, 95% bootstrap intervals):
+
+| Check | Difference |
+|---|---|
+| Validation window 01.07.2025–30.06.2026 | −0.0127 [−0.0175; −0.0082] |
+| One check on untouched data, 01.07–04.10.2026, criteria fixed beforehand | −0.0083 [−0.0205; +0.0027] |
+| This journal's 189 scored series before the switch, rebuilt | +0.0032 [−0.0120; +0.0175] |
+
+The gain on untouched data is smaller than in the backtest, and the journal has not shown it yet: expect a modest improvement, mostly in matches of top-70 teams.
 
 ## Sources and attribution
 
