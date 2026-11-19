@@ -157,7 +157,7 @@ Every commit is made by a public workflow run with its own timestamped log on Gi
 
 | Field | Meaning |
 |---|---|
-| `match_id` | Journal ID of the match. Liquipedia has no stable match ID, so it is issued at the first forecast and later sightings are linked by tournament, stage, both teams and a start time within 3 days |
+| `match_id` | Journal ID of the match. Liquipedia has no stable match ID, so it is issued at the first forecast and later sightings are linked by tournament, stage, both teams and a start time within 3 days. Since 19.11.2026 a sighting of both teams on the same tournament page or one of its subpages within 2 hours of the start is linked too, whatever the stage is called: a match found on a tournament page and listed later on the matches page keeps one ID |
 | `start_time` | In a forecast: the scheduled start. In a result: the actual start |
 | `team_a.title` | Liquipedia page of the team. Results are matched by title, so the order in which a source lists the teams does not matter |
 | `forecast.p_team_a` | Probability that `team_a` wins the series |
