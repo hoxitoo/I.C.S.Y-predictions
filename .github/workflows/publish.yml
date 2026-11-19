@@ -212,10 +212,13 @@ jobs:
             echo "Nothing new to publish."
             exit 0
           fi
-          added=$(git diff --cached --numstat | awk '{s += $1} END {print s}')
+          added=$(git diff --cached --numstat -- predictions results | awk '{s += $1} END {print s + 0}')
+          reports=$(git diff --cached --name-only -- reports | wc -l | tr -d ' ')
+          title="Journal: ${added} new lines"
+          if [ "$reports" -gt 0 ]; then title="${title}, ${reports} weekly report(s)"; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -q -m "Journal: ${added} new lines, $(date -u +%Y-%m-%dT%H:%MZ)" \
+          git commit -q -m "${title}, $(date -u +%Y-%m-%dT%H:%MZ)" \
             -m "Model code: hoxitoo/I.C.S.Y-I-Can-See-You-@${code_sha}"
           # Rebase on commits made since the checkout (a README edit), then push again.
           for attempt in 1 2 3; do
