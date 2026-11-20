@@ -163,7 +163,7 @@ Every commit is made by a public workflow run with its own timestamped log on Gi
 | `start_time` | In a forecast: the scheduled start. In a result: the actual start |
 | `team_a.title` | Liquipedia page of the team. Results are matched by title, so the order in which a source lists the teams does not matter |
 | `forecast.p_team_a` | Probability that `team_a` wins the series |
-| `confidence.index` | Reliability index 0–100. **Version 0, not yet validated:** data volume 50%, line-up stability 30%, rating data available 20%; capped at 90 until it is checked against outcomes |
+| `confidence.index` | Reliability index 0–100. **Version 0:** data volume 50%, line-up stability 30%, rating data available 20%; capped at 90. Checked against outcomes in November 2026, it does not rank forecasts by how far they can be trusted, so the website and the Telegram channel stopped showing it on 20.11.2026; every line still carries it |
 | `scope_tier` | Coverage tier for separate calibration: `global_top30`, `global_31_70`, `regional` |
 | `lineup_source` | In `model`: where the model takes the five players from. In each team: `liquipedia_event` (the event line-up) or `last_known` |
 | `outcome.winner` | `team_a`, `team_b` or `draw`, in the order given by `teams`; `null` if the match was not played |
