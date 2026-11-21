@@ -36,12 +36,13 @@ Anyone can check the accuracy and calibration from the files alone: no account, 
 | Item | Details |
 |---|---|
 | **Forecast** | Probability that each team wins the series (`series_winner`) |
-| **Matches** | Upcoming matches listed on Liquipedia where at least one team is in the top 70 of any Valve Regional Standings ranking (global, Europe, Americas, Asia). Both teams need at least 5 series in the last 180 days. When Liquipedia's match list lags behind, the teams and results are taken from the tournament pages |
+| **Matches** | Upcoming matches on Liquipedia where at least one team is in the top 70 of any Valve Regional Standings ranking (global, Europe, Americas, Asia). Both teams need at least 5 series in the last 180 days. Liquipedia's match list shows only the next twenty or so matches, so the matches of running events and of qualifiers are also read from the tournament pages (since 19.11.2026), and teams and results the list lags behind on are filled from them |
 | **Not forecast** | Bo2 series (they can end 1:1), matches with an unknown opponent, teams without ranked history |
 | **Model** | `team_blend_roster` 0.3.0 since 01.11.2026 (0.2.2 from 30.10.2026, 0.2.1 from 26.10.2026, 0.2.0 from 18.10.2026, 0.1.0 before), details [below](#current-model) |
 | **Schedule** | Every hour at :17 UTC, started by an external scheduler (GitHub's own schedule starts runs hours late or skips them). A match is usually forecast days ahead, as soon as both teams are known |
 | **Telegram** | [t.me/ICSYpublic](https://t.me/ICSYpublic): new forecasts and results after every run, each linked to its journal line |
-| **Coming next** | Map and player forecasts (kills, deaths, ADR with intervals), weekly calibration reports |
+| **Weekly reports** | [`reports/weekly/`](reports/weekly/) since 19.11.2026, described below |
+| **Coming next** | Map and player forecasts (kills, deaths, ADR with intervals) |
 
 ## How it works
 
