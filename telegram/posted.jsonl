@@ -620,3 +620,5 @@
 {"kind": "result", "key": "0db2cc7e8f0ec606@2026-11-21T11:11:59.114954+00:00", "message_id": 340, "posted_at": "2026-11-21T11:12:02.052204+00:00", "lang": "en"}
 {"kind": "result", "key": "75e0246daa212a21@2026-11-21T11:11:59.114954+00:00", "message_id": 340, "posted_at": "2026-11-21T11:12:02.052204+00:00", "lang": "en"}
 {"kind": "result", "key": "4e7ddc8391bcf8a4@2026-11-21T11:11:59.114954+00:00", "message_id": 340, "posted_at": "2026-11-21T11:12:02.052204+00:00", "lang": "en"}
+{"kind": "forecast", "key": "20261121T132021Z-f0bc0cb17f91afc6", "message_id": 341, "posted_at": "2026-11-21T13:20:24.692525+00:00", "lang": "en"}
+{"kind": "forecast", "key": "20261121T132021Z-0c471c5eea250b0c", "message_id": 341, "posted_at": "2026-11-21T13:20:24.692525+00:00", "lang": "en"}
