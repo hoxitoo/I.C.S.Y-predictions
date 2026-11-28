@@ -160,7 +160,7 @@ Every commit is made by a public workflow run with its own timestamped log on Gi
 
 | Field | Meaning |
 |---|---|
-| `match_id` | Journal ID of the match. Liquipedia has no stable match ID, so it is issued at the first forecast and later sightings are linked by tournament, stage, both teams and a start time within 3 days. Since 19.11.2026 a sighting of both teams on the same tournament page or one of its subpages within 2 hours of the start is linked too, whatever the stage is called: a match found on a tournament page and listed later on the matches page keeps one ID |
+| `match_id` | Journal ID of the match. Liquipedia has no stable match ID, so it is issued at the first forecast and later sightings are linked by tournament, stage, both teams and a start time within 3 days. Since 19.11.2026 a sighting of both teams on the same tournament page or one of its subpages within 2 hours of the start is linked too, whatever the stage is called: a match found on a tournament page and listed later on the matches page keeps one ID. Since 28.11.2026 team names are compared through Liquipedia redirects: a title that redirects to a team page (a renamed team, an alias) is that team |
 | `start_time` | In a forecast: the scheduled start. In a result: the actual start |
 | `team_a.title` | Liquipedia page of the team. Results are matched by title, so the order in which a source lists the teams does not matter |
 | `forecast.p_team_a` | Probability that `team_a` wins the series |
@@ -188,6 +188,14 @@ The format was frozen as **v1.0** on 23.10.2026.
 | 0.3 | 11.10.2026 | A result counts only after the first forecast; `correction_of`, `duplicate_of` |
 | 0.4 | 23.10.2026 | Map scores `outcome.maps`; matches not played as listed (`not_played`) |
 | **1.0** | **23.10.2026** | **0.4 frozen; changes follow the rules above** |
+
+## Known errors
+
+Published lines are never rewritten, so errors stay in the journal and in the track record. They are listed here.
+
+| Date | Lines | What happened |
+|---|---|---|
+| 28.11.2026 | `c16a8a453838888b` (The One vs Eternal Fire) and `e243af70c34caa11` (1w Team vs Eternal Fire), PGL Singapore Stage 2, Round 1 | One real match (1w Team 1:0 Eternal Fire) was forecast twice. Liquipedia's match list linked 1w Team as "The One", a redirect to the 1w Team page, while the tournament page named it 1w Team; the two names were taken for two matches, and "The One" was matched to another team of that name in Valve's rankings, so `c16a8a453838888b` (17.9% for "The One") was computed for the wrong team. Both lines are scored as published. Fixed on 28.11.2026: team names now go through Liquipedia redirects |
 
 ## Check it yourself
 
