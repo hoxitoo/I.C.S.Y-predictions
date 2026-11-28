@@ -168,7 +168,7 @@ Every commit is made by a public workflow run with its own timestamped log on Gi
 | `scope_tier` | Coverage tier for separate calibration: `global_top30`, `global_31_70`, `regional` |
 | `lineup_source` | In `model`: where the model takes the five players from. In each team: `liquipedia_event` (the event line-up) or `last_known` |
 | `outcome.winner` | `team_a`, `team_b` or `draw`, in the order given by `teams`; `null` if the match was not played |
-| `outcome.maps` | Since 0.4: every played map with its round score, in the order given by `teams`, when the tournament page has them. A best-of-one listed with its round score keeps it as `score` |
+| `outcome.maps` | Since 0.4: every played map with its round score, in the order given by `teams`, when the tournament page has them. A best-of-one listed with its round score keeps it as `score`; since 28.11.2026 a best-of-one is always scored by its rounds (13:10). Some best-of-one lines settled from a tournament page before that have `score` 1:0, with the round score in `outcome.maps`; the website shows them by the rounds |
 | `outcome.not_played` | Since 0.4: `true` if the match was not played as listed (rule 7) |
 | `correction_of`, `reason` | In a result: `settled_at` of the line it replaces and why (`result_before_forecast`), or `not_played`. In a forecast, `reason` says why a match was re-forecast: `new_model_version` or `lineup_change` |
 | `duplicate_of` | In a result: the `match_id` this journal match duplicates; the real match is scored once |
